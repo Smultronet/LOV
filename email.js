@@ -2,6 +2,7 @@
 async function skickaBekraftelse(namn, email, sammanfattning) {
   const data = {
     parent_name: namn,
+ung_name:ungdomens namn
     parent_email: email,
     summary: sammanfattning
   };
