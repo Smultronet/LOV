@@ -1,13 +1,9 @@
-// email.js - Hanterar e-post med EmailJS
-(function(){
-  emailjs.init("f7lLnWl2EadQdRwwt");
-})();
-
+// email.js
 async function skickaBekraftelse(namn, email, sammanfattning) {
   const data = {
-    parent_name:  namn,
+    parent_name: namn,
     parent_email: email,
-    summary:      sammanfattning
+    summary: sammanfattning
   };
 
   try {
