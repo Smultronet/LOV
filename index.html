@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Sommarledighet 2025 – Närvaroanmälan</title>
+  <!-- Start.Stockholm CSS -->
+  <link rel="stylesheet" href="https://styleguide.stockholm.se/css/start-style.css">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- EmailJS -->
+  <script src="https://cdn.emailjs.com/sdk/2.3.2/email.min.js"></script>
+  <!-- Konfiguration -->
+  <script src="firebase-config.js"></script>
+  <script src="email.js"></script>
+  <style>
+    body { font-family: "Source Sans Pro", sans-serif; margin: 2rem; background: #f5f5f5; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
+    th { background: #ededed; }
+    .red { background-color: #ffcccc; }
+    .blue { background-color: #cce5ff; }
+    #status { margin-top: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Sommarledighet 2025 – Närvaroanmälan</h1>
+  <form id="form">
+    <label>Förälders namn: <input type="text" id="parentName" required></label><br><br>
+    <label>Förälders e-post: <input type="email" id="parentEmail" required></label><br><br>
+    <table id="calendar">
+      <thead>
+        <tr><th>Datum</th><th>Aktivitet</th><th>Kommer</th><th>Tid</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <br>
+    <button type="submit">Skicka närvaro</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+    const db = firebase.firestore();
+
+    async function loadCalendar() {
+      const snapshot = await db.collection("kalender").orderBy("date").get();
+      const tbody = document.querySelector("#calendar tbody");
+      snapshot.forEach(doc => {
+        const { date, note, color } = doc.data();
+        const tr = document.createElement("tr");
+        if (color) tr.classList.add(color);
+        tr.innerHTML = \`
+          <td>\${date}</td>
+          <td>\${note}</td>
+          <td><input type="checkbox" data-date="\${date}" class="kommer"></td>
+          <td><input type="time" data-date="\${date}" class="tid"></td>
+        \`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const namn = document.getElementById("parentName").value;
+      const email = document.getElementById("parentEmail").value;
+      const checkboxar = document.querySelectorAll(".kommer");
+      const tider = document.querySelectorAll(".tid");
+
+      const svar = Array.from(checkboxar).map(cb => {
+        const date = cb.dataset.date;
+        const kommer = cb.checked;
+        const tid = Array.from(tider).find(t => t.dataset.date === date)?.value || "";
+        return { date, kommer, tid };
+      });
+
+      await db.collection("narvaro").add({
+        namn, email, svar, tidpunkt: firebase.firestore.Timestamp.now()
+      });
+
+      const summary = svar.map(s =>
+        \`\${s.date}: \${s.kommer ? "Kommer" : "Kommer ej"}\${s.kommer && s.tid ? " kl " + s.tid : ""}\`
+      ).join("\n");
+
+      const ok = await skickaBekraftelse(namn, email, summary);
+      const statusEl = document.getElementById("status");
+      if (ok) {
+        statusEl.textContent = "✅ Tack! Din anmälan är inskickad.";
+        document.getElementById("form").reset();
+      } else {
+        statusEl.textContent = "⚠️ Ett fel uppstod vid e-postutskick.";
+      }
+    });
+
+    loadCalendar();
+  </script>
+</body>
+</html>
