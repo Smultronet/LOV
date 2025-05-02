@@ -80,6 +80,7 @@
     document.getElementById("form").addEventListener("submit", async e => {
       e.preventDefault();
       const namn = document.getElementById("parentName").value;
+      const ungdom = document.getElementById("youthName").value;
       const email = document.getElementById("parentEmail").value;
       const checkboxar = document.querySelectorAll(".kommer");
       const tider = document.querySelectorAll(".tid");
@@ -91,11 +92,13 @@
         return { date, kommer, tid };
       });
 
-      await firebase.firestore().collection("narvaro").add({
-        namn, email, svar, tidpunkt: firebase.firestore.Timestamp.now()
+     await firebase.firestore().collection("narvaro").add({
+  namn, ungdom, email, svar, tidpunkt: firebase.firestore.Timestamp.now()
+});
+
       });
 
-      const summary = svar.map(s =>
+      const summary = `Ungdom: ${ungdom}\n` + svar.map(s =>
         `${s.date}: ${s.kommer ? "Kommer" : "Kommer ej"}${s.kommer && s.tid ? " kl " + s.tid : ""}`
       ).join("\n");
 
