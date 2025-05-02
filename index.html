@@ -3,61 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <title>Sommarledighet 2025 – Närvaroanmälan</title>
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script type="module">
-    import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-    window.emailjs = emailjs;
-    emailjs.init("f7lLnWl2EadQdRwwt");
-  </script>
+  <!-- Din Firebase‑konfiguration -->
   <script src="firebase-config.js"></script>
+  <!-- EmailJS SDK v3 -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>
+    // Initiera EmailJS när det är laddat
+    window.onload = function() {
+      emailjs.init("64vIY_pmg15yG6lYv"); // Din Public Key
+    };
+  </script>
+  <!-- Din e‑post‑logik -->
   <script src="email.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script>
-  window.onload = function () {
-    emailjs.init("64vIY_pmg15yG6lYv");
-  };
-</script>
-
   <style>
-    body { font-family: "Source Sans Pro", sans-serif; background: #f5f5f5; margin: 2rem; }
-        h1 { color: #003366; font-size: 1.5rem; }
-    form { background: #fff; padding: 1rem; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: center; }
-    th { background: #ededed; font-weight: 600; }
-    .red { background-color: #ffcccc; }
-    .blue { background-color: #cce5ff; }
-    button { background: #0055a5; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+    body {
+      font-family: "Source Sans Pro", sans-serif;
+      background: #f5f5f5;
+      margin: 2rem;
+    }
+    h1 {
+      color: #003366;
+      font-size: 1.5rem;
+    }
+    form {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      box-sizing: border-box;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    th {
+      background: #ededed;
+    }
+    .red { background: #ffcccc; }
+    .blue { background: #cce5ff; }
+    button {
+      background: #0055a5;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
     button:hover { background: #004080; }
-    #status { margin-top: 1rem; font-weight: bold; }
+    #status {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
   </style>
 </head>
-
 <body>
-    <h1>Sommarledighet 2025 – Närvaroanmälan</h1>
+  <h1>Sommarledighet 2025 – Närvaroanmälan</h1>
+
   <form id="form">
-    <label>Förälders namn:<br><input type="text" id="parentName" required style="width:100%;padding:0.5rem;"></label><br><br>
-<label>Ungdomens namn:<br><input type="text" id="youthName" required style="width:100%;padding:0.5rem;"></label><br><br>
-    <label>Förälders e-post:<br><input type="email" id="parentEmail" required style="width:100%;padding:0.5rem;"></label><br><br>
+    <label>
+      Förälders namn:
+      <input type="text" id="parentName" required>
+    </label>
+    <label>
+      Ungdomens namn:
+      <input type="text" id="youthName" required>
+    </label>
+    <label>
+      Förälders e‑post:
+      <input type="email" id="parentEmail" required>
+    </label>
+
     <table id="calendar">
-      <thead><tr><th>Datum</th><th>Aktivitet</th><th>Kommer</th><th>Tid</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Datum</th>
+          <th>Aktivitet</th>
+          <th>Kommer</th>
+          <th>Tid</th>
+        </tr>
+      </thead>
       <tbody></tbody>
     </table>
-    <br>
-    <button type="submit">Registrera närvaro</button>
+
+    <button type="submit">Skicka närvaro</button>
   </form>
+
   <p id="status"></p>
 
   <script>
-    window.loadCalendar = async function() {
+    // Hämta och visa kalender
+    async function loadCalendar() {
       try {
-        const snapshot = await firebase.firestore().collection("kalender").orderBy("date").get();
+        const snapshot = await firebase.firestore()
+          .collection("kalender")
+          .orderBy("date")
+          .get();
         const tbody = document.querySelector("#calendar tbody");
         tbody.innerHTML = "";
         snapshot.forEach(doc => {
           const { date, note, color } = doc.data();
-          
           const tr = document.createElement("tr");
           if (color) tr.classList.add(color);
           tr.innerHTML = `
@@ -71,44 +134,60 @@
       } catch (err) {
         console.error("Fel vid loadCalendar():", err);
       }
-    };
+    }
 
-    window.addEventListener("load", () => {
-      window.loadCalendar();
-    });
+    // Kör kalender när sidan laddats
+    window.addEventListener("load", loadCalendar);
 
-    document.getElementById("form").addEventListener("submit", async e => {
+    // Hantera formulärskick
+    document.getElementById("form").addEventListener("submit", async function(e) {
       e.preventDefault();
-      const namn = document.getElementById("parentName").value;
+      // Samla fältvärden
+      const namn   = document.getElementById("parentName").value;
       const ungdom = document.getElementById("youthName").value;
-      const email = document.getElementById("parentEmail").value;
+      const email  = document.getElementById("parentEmail").value;
       const checkboxar = document.querySelectorAll(".kommer");
-      const tider = document.querySelectorAll(".tid");
+      const tider      = document.querySelectorAll(".tid");
 
+      // Bygg svar-array
       const svar = Array.from(checkboxar).map(cb => {
         const date = cb.dataset.date;
         const kommer = cb.checked;
-        const tid = Array.from(tider).find(t => t.dataset.date === date)?.value || "";
+        const tid = Array.from(tider)
+          .find(t => t.dataset.date === date)?.value || "";
         return { date, kommer, tid };
       });
 
-     await firebase.firestore().collection("narvaro").add({
-  namn, ungdom, email, svar, tidpunkt: firebase.firestore.Timestamp.now()
-});
-
+      // Spara i Firestore
+      await firebase.firestore().collection("narvaro").add({
+        namn, ungdom, email, svar,
+        tidpunkt: firebase.firestore.Timestamp.now()
       });
 
-      const summary = `Ungdom: ${ungdom}\n` + svar.map(s =>
-        `${s.date}: ${s.kommer ? "Kommer" : "Kommer ej"}${s.kommer && s.tid ? " kl " + s.tid : ""}`
-      ).join("\n");
+      // Skapa text‑sammanfattning
+      const summary = `Ungdom: ${ungdom}\n` +
+        svar.map(s =>
+          `${s.date}: ${s.kommer ? "Kommer" : "Kommer ej"}`
+          + (s.kommer && s.tid ? " kl " + s.tid : "")
+        ).join("\n");
 
-      const ok = await skickaBekraftelse(namn, email, summary);
-      const statusEl = document.getElementById("status");
-      if (ok) {
-        statusEl.textContent = "✅ Tack! Din anmälan är inskickad.";
-        document.getElementById("form").reset();
-      } else {
-        statusEl.textContent = "⚠️ Ett fel uppstod vid e-postutskick.";
+      // Skicka e‑post via EmailJS
+      try {
+        await emailjs.send("service_1n11tf8", "template_o3xaajo", {
+          parent_name: namn,
+          parent_email: email,
+          summary
+        });
+        await emailjs.send("service_1n11tf8", "template_su5ag0n", {
+          parent_name: namn,
+          parent_email: email,
+          summary
+        });
+        document.getElementById("status").textContent = "✅ Tack! Din anmälan är inskickad.";
+        this.reset();
+      } catch (err) {
+        console.error("Fel vid e‑postutskick:", err);
+        document.getElementById("status").textContent = "⚠️ Ett fel uppstod vid e‑postutskick.";
       }
     });
   </script>
