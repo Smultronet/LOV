@@ -1,28 +1,41 @@
 // email.js
-async function skickaBekraftelse(namn, email, youth, summary) {
-  const data = {
-    parent_name:  namn,
-    parent_email: email,
-    child_name:   youth,               // NY RAD: ungdomens namn
-    summary:      summary,
-    from_email:   "no-reply@stockholm.se",
-    cc_emails:    "admin@exempel.se, karim.nawar@stockholm.se"
-  };
-
+async function skickaBekraftelse(parentName, parentEmail, youthName, summary) {
+  // Föräldrabekräftelse
   try {
-    // Till föräldern
     await emailjs.send("service_1n11tf8", "template_o3xaajo", {
-      ...data,
-      to_email: email
+      from_email:   "no-reply@stockholm.se",
+      to_email:     parentEmail,
+      cc_emails:    "karim.nawar@stockholm.se, tina.han.yeung@stockholm.se, marie.faniadis@stockholm.se",
+      parent_name:  parentName,
+      parent_email: parentEmail,
+      child_name:   youthName,
+      summary:      summary
     });
-    // Till admin
-    await emailjs.send("service_1n11tf8", "template_su5ag0n", {
-      ...data,
-      to_email: "karim.nawar.stockholm@gmail.com"
-    });
+  } catch (err) {
+    console.error("Fel vid föräldrabekräftelse:", err);
+    return false;
+  }
+
+  // Intern notis till kollegor
+  const colleagues = [
+    "karim.nawar@stockholm.se",
+    "tina.han.yeung@stockholm.se",
+    "marie.faniadis@stockholm.se"
+  ];
+  try {
+    await Promise.all(colleagues.map(addr =>
+      emailjs.send("service_1n11tf8", "template_su5ag0n", {
+        from_email:   "no-reply@stockholm.se",
+        to_email:     addr,
+        parent_name:  parentName,
+        parent_email: parentEmail,
+        child_name:   youthName,
+        summary:      summary
+      })
+    ));
     return true;
-  } catch (error) {
-    console.error("Fel vid e‑postutskick:", error);
+  } catch (err) {
+    console.error("Fel vid intern notis:", err);
     return false;
   }
 }
