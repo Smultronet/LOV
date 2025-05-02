@@ -41,22 +41,31 @@
 
   <script>
     const db = firebase.firestore();
+    console.log("Firebase initialized, apps:", firebase.apps.length);
 
     async function loadCalendar() {
-      const snapshot = await db.collection("kalender").orderBy("date").get();
-      const tbody = document.querySelector("#calendar tbody");
-      snapshot.forEach(doc => {
-        const { date, note, color } = doc.data();
-        const tr = document.createElement("tr");
-        if (color) tr.classList.add(color);
-        tr.innerHTML = \`
-          <td>\${date}</td>
-          <td>\${note}</td>
-          <td><input type="checkbox" data-date="\${date}" class="kommer"></td>
-          <td><input type="time" data-date="\${date}" class="tid"></td>
-        \`;
-        tbody.appendChild(tr);
-      });
+      try {
+        console.log("Hämtar kalender…");
+        const snapshot = await db.collection("kalender").orderBy("date").get();
+        console.log("Dokument hittade:", snapshot.size);
+        const tbody = document.querySelector("#calendar tbody");
+        snapshot.forEach(doc => {
+          console.log("  •", doc.id, doc.data());
+          const { date, note, color } = doc.data();
+          const tr = document.createElement("tr");
+          if (color) tr.classList.add(color);
+          tr.innerHTML = \`
+            <td>\${date}</td>
+            <td>\${note}</td>
+            <td><input type="checkbox" data-date="\${date}" class="kommer"></td>
+            <td><input type="time"    data-date="\${date}" class="tid"></td>
+          \`;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error("Fel vid loadCalendar():", err);
+        alert("Kunde inte läsa kalendern – kolla konsolen för felmeddelanden.");
+      }
     }
 
     document.getElementById("form").addEventListener("submit", async e => {
