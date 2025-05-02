@@ -57,6 +57,18 @@
       padding: 0.5rem;
       box-sizing: border-box;
     }
+    button[type="button"] {
+      margin-right: 0.5rem;
+      background: #0072c6;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+    }
+    button[type="button"]:hover {
+      background: #005a9e;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -70,7 +82,7 @@
     th { background: #ededed; }
     .red  { background: #ffcccc; }
     .blue { background: #cce5ff; }
-    button {
+    button[type="submit"] {
       background: #0055a5;
       color: #fff;
       border: none;
@@ -78,18 +90,19 @@
       border-radius: 4px;
       cursor: pointer;
     }
-    button:hover { background: #004080; }
+    button[type="submit"]:hover {
+      background: #004080;
+    }
     #status {
       font-weight: bold;
       margin-top: 0.5rem;
     }
   </style>
 </head>
-
 <body>
-  <!-- Stockholms stads logotyp (lägg svg:n i samma mapp som denna fil) -->
+
   <header>
-    <img src="stockholm-logo.jpg" alt="Stockholms stad logotyp">
+    <img src="stockholm-logo.svg" alt="Stockholms stad logotyp">
     <h1>Sommarledighet 2025 – Närvaroanmälan</h1>
   </header>
 
@@ -106,6 +119,12 @@
       Förälders e‑post:
       <input type="email" id="parentEmail" required>
     </label>
+
+    <!-- Knapp för att markera alla -->
+    <div>
+      <button type="button" id="selectAllYes">Alla kommer</button>
+      <button type="button" id="selectAllNo">Alla kommer ej</button>
+    </div>
 
     <table id="calendar">
       <thead>
@@ -127,7 +146,7 @@
   <p id="status"></p>
 
   <script>
-    // 1) Läs in kalendern
+    // Läs in kalendern
     async function loadCalendar() {
       try {
         const snapshot = await firebase.firestore()
@@ -143,8 +162,8 @@
           tr.innerHTML = `
             <td>${date}</td>
             <td>${note}</td>
-            <td><input type="checkbox"      data-date="${date}" class="kommer"></td>
-            <td><input type="checkbox"      data-date="${date}" class="ejkommer"></td>
+            <td><input type="checkbox" data-date="${date}" class="kommer"></td>
+            <td><input type="checkbox" data-date="${date}" class="ejkommer"></td>
             <td><input type="time" value="09:00" data-date="${date}" class="from"></td>
             <td><input type="time" value="17:00" data-date="${date}" class="to"></td>
           `;
@@ -156,7 +175,17 @@
     }
     window.addEventListener("load", loadCalendar);
 
-    // 2) Hantera formulärskick
+    // Knappfunktioner för att markera alla
+    document.getElementById("selectAllYes").addEventListener("click", () => {
+      document.querySelectorAll(".kommer").forEach(cb => cb.checked = true);
+      document.querySelectorAll(".ejkommer").forEach(cb => cb.checked = false);
+    });
+    document.getElementById("selectAllNo").addEventListener("click", () => {
+      document.querySelectorAll(".ejkommer").forEach(cb => cb.checked = true);
+      document.querySelectorAll(".kommer").forEach(cb => cb.checked = false);
+    });
+
+    // Hantera formulärskick
     document.getElementById("form").addEventListener("submit", async function(e) {
       e.preventDefault();
       const namn   = document.getElementById("parentName").value;
@@ -164,7 +193,6 @@
       const email  = document.getElementById("parentEmail").value;
       const rows   = document.querySelectorAll("#calendar tbody tr");
 
-      // Samla svar per rad
       const svar = Array.from(rows).map(tr => {
         const date     = tr.querySelector(".kommer").dataset.date;
         const kommer   = tr.querySelector(".kommer").checked;
@@ -174,31 +202,19 @@
         return { date, kommer, ejkommer, from, to };
       });
 
-      // Spara i Firestore
       await firebase.firestore().collection("narvaro").add({
         namn, ungdom, email, svar,
         tidpunkt: firebase.firestore.Timestamp.now()
       });
 
-      // Bygg sammanfattning för mejl
       let summary = `Ungdom: ${ungdom}\n\n`;
       summary += svar.map(s =>
-        `${s.date}: ${s.kommer ? "Kommer" : s.ejkommer ? "Kommer ej" : "Osäker"}`
-        + `, från kl ${s.from} till kl ${s.to}`
+        `${s.date}: ${s.kommer ? "Kommer" : s.ejkommer ? "Kommer ej" : "Osäker"}, från kl ${s.from} till kl ${s.to}`
       ).join("\n");
 
-      // Skicka e‑post
       try {
-        await emailjs.send("service_1n11tf8", "template_o3xaajo", {
-          parent_name:  namn,
-          parent_email: email,
-          summary
-        });
-        await emailjs.send("service_1n11tf8", "template_su5ag0n", {
-          parent_name:  namn,
-          parent_email: email,
-          summary
-        });
+        await emailjs.send("service_1n11tf8", "template_o3xaajo", { parent_name: namn, parent_email: email, summary });
+        await emailjs.send("service_1n11tf8", "template_su5ag0n", { parent_name: namn, parent_email: email, summary });
         document.getElementById("status").textContent = "✅ Tack! Din anmälan är inskickad.";
         this.reset();
       } catch (err) {
