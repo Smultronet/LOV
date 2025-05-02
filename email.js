@@ -6,7 +6,7 @@ async function skickaBekraftelse(namn, email, youth, summary) {
     child_name:   youth,               // NY RAD: ungdomens namn
     summary:      summary,
     from_email:   "no-reply@stockholm.se",
-    cc_emails:    "admin@exempel.se, karim.nawar.stockholm@gmail.com"
+    cc_emails:    "admin@exempel.se, karim.nawar@stockholm.se"
   };
 
   try {
