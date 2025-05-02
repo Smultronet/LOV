@@ -14,7 +14,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script>
     window.onload = () => {
-      emailjs.init("64vIY_pmg15yG6lYv"); // Din Public Key
+      // Initiera EmailJS med din Public Key
+      emailjs.init("64vIY_pmg15yG6lYv");
     };
   </script>
   <!-- Din e‑post‑logik -->
@@ -52,7 +53,8 @@
       margin-bottom: 0.75rem;
     }
     input[type="text"],
-    input[type="email"] {
+    input[type="email"],
+    input[type="time"] {
       width: 100%;
       padding: 0.5rem;
       box-sizing: border-box;
@@ -72,14 +74,16 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 1rem;
+      margin: 1rem 0;
     }
     th, td {
       border: 1px solid #ccc;
       padding: 0.5rem;
       text-align: center;
     }
-    th { background: #ededed; }
+    th {
+      background: #ededed;
+    }
     .red  { background: #ffcccc; }
     .blue { background: #cce5ff; }
     button[type="submit"] {
@@ -122,8 +126,8 @@
 
     <!-- Knapp för att markera alla -->
     <div>
-      <button type="button" id="selectAllYes">Kommer alla dagar</button>
-      <button type="button" id="selectAllNo">Kommer ej alla dagar</button>
+      <button type="button" id="selectAllYes">Alla kommer</button>
+      <button type="button" id="selectAllNo">Alla kommer ej</button>
     </div>
 
     <table id="calendar">
@@ -146,7 +150,7 @@
   <p id="status"></p>
 
   <script>
-    // Läs in kalendern
+    // Ladda kalendern från Firestore
     async function loadCalendar() {
       try {
         const snapshot = await firebase.firestore()
@@ -202,23 +206,24 @@
         return { date, kommer, ejkommer, from, to };
       });
 
+      // Spara i Firestore
       await firebase.firestore().collection("narvaro").add({
         namn, ungdom, email, svar,
         tidpunkt: firebase.firestore.Timestamp.now()
       });
 
+      // Sammanfattning
       let summary = `Ungdom: ${ungdom}\n\n`;
       summary += svar.map(s =>
         `${s.date}: ${s.kommer ? "Kommer" : s.ejkommer ? "Kommer ej" : "Osäker"}, från kl ${s.from} till kl ${s.to}`
       ).join("\n");
 
+      // Skicka e‑post
       try {
-        await emailjs.send("service_1n11tf8", "template_o3xaajo", { parent_name: namn, parent_email: email, summary });
-        await emailjs.send("service_1n11tf8", "template_su5ag0n", { parent_name: namn, parent_email: email, summary });
+        await skickaBekraftelse(namn, email, ungdom, summary);
         document.getElementById("status").textContent = "✅ Tack! Din anmälan är inskickad.";
         this.reset();
-      } catch (err) {
-        console.error("Fel vid e‑postutskick:", err);
+      } catch {
         document.getElementById("status").textContent = "⚠️ Ett fel uppstod vid e‑postutskick.";
       }
     });
