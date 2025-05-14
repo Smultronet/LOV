@@ -76,16 +76,22 @@
     min-height: 140px;
     display: flex;
     flex-direction: column;
+    overflow-wrap: break-word;    /* Bryt långa ord */
   }
   .day-header {
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: #003366;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;      /* Kortar om datumsträngen blir för lång */
   }
   .note {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
     flex-grow: 1;
+    white-space: normal;           /* Tillåt radbrytningar */
+    overflow-wrap: break-word;     /* Bryt vid behov */
   }
   .toggles {
     display: flex;
@@ -100,6 +106,7 @@
     background: #fafafa;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
   }
   .toggles button.active {
     background: #4a90e2;
@@ -146,6 +153,7 @@
     margin-top: 0.5rem;
   }
 </style>
+
 
 </head>
 <body>
