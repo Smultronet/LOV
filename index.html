@@ -9,103 +9,34 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 
-  <!-- EmailJS SDK v3 -->
+  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script>
-    window.onload = () => {
-      emailjs.init("64vIY_pmg15yG6lYv");
-    };
+    window.onload = () => emailjs.init("64vIY_pmg15yG6lYv");
   </script>
   <script src="email.js"></script>
 
   <style>
-    body {
-      font-family: "Source Sans Pro", sans-serif;
-      background: #f5f5f5;
-      margin: 2rem;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    header img {
-      height: 60px;
-      margin-right: 1rem;
-    }
-    h1 {
-      color: #003366;
-      font-size: 1.75rem;
-      margin: 0;
-    }
-    form {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom: 1rem;
-    }
+    body { font-family: "Source Sans Pro", sans-serif; background: #f5f5f5; margin: 2rem; }
+    header { display: flex; align-items: center; margin-bottom: 1rem; }
+    header img { height: 60px; margin-right: 1rem; }
+    h1 { color: #003366; font-size: 1.75rem; margin: 0; }
+    form { background: #fff; padding: 1rem; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     label { display: block; margin-bottom: 0.75rem; }
-    input, input[type="time"] {
-      width: 100%;
-      padding: 0.5rem;
-      box-sizing: border-box;
-    }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
-    }
-    .day-card {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-    }
-    .day-header {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #003366;
-    }
+    input, input[type="time"] { width: 100%; padding: 0.5rem; box-sizing: border-box; }
+    .controls { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+    .controls > * { flex: 1; min-width: 120px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; margin: 1rem 0; }
+    .day-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 0.75rem; display: flex; flex-direction: column; }
+    .day-header { font-weight: 600; margin-bottom: 0.5rem; color: #003366; }
     .note { font-size: 0.9rem; margin-bottom: 0.75rem; flex-grow: 1; }
     .toggles { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .toggles button {
-      flex: 1;
-      padding: 0.4rem;
-      border: 2px solid #ccc;
-      border-radius: 4px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .toggles button.active {
-      background: #0055a5;
-      color: #fff;
-      border-color: #0055a5;
-    }
-    .time-inputs {
-      display: none;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-    .time-inputs input {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button[type="submit"] {
-      background: #0055a5;
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button[type="submit"]:hover {
-      background: #004080;
-    }
+    .toggles button { flex: 1; padding: 0.4rem; border: 2px solid #ccc; border-radius: 4px; background: #fafafa; cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+    .toggles button.active { background: #0055a5; color: #fff; border-color: #0055a5; }
+    .time-inputs { display: none; flex-direction: column; gap: 0.3rem; }
+    .time-inputs input { border: 1px solid #ccc; border-radius: 4px; }
+    button[type="submit"] { background: #0055a5; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+    button[type="submit"]:hover { background: #004080; }
     #status { font-weight: bold; margin-top: 0.5rem; }
   </style>
 </head>
@@ -120,8 +51,20 @@
     <label>Ungdomens namn:<input type="text" id="youthName" required></label>
     <label>Förälders e-post:<input type="email" id="parentEmail" required></label>
 
-    <div class="calendar-grid" id="calendarGrid"></div>
+    <!-- Globala kontroller -->
+    <div class="controls">
+      <button type="button" id="selectAllYes">Alla kommer</button>
+      <button type="button" id="selectAllNo">Alla kommer ej</button>
+      <div>
+        <label>Från alla:<input type="time" id="globalFrom" value="09:00"></label>
+      </div>
+      <div>
+        <label>Till alla:<input type="time" id="globalTo" value="17:00"></label>
+      </div>
+      <button type="button" id="applyTimes">Tilldela tider</button>
+    </div>
 
+    <div class="calendar-grid" id="calendarGrid"></div>
     <button type="submit">Skicka närvaro</button>
   </form>
 
@@ -129,57 +72,58 @@
 
   <script>
     async function loadCalendar() {
-      try {
-        const snapshot = await firebase.firestore()
-          .collection("kalender").orderBy("date").get();
-        const grid = document.getElementById("calendarGrid");
-        grid.innerHTML = "";
-        snapshot.forEach(doc => {
-          const { date, note, color } = doc.data();
-          const card = document.createElement("div");
-          card.className = "day-card";
-          if (color) card.style.background = color;
-          card.innerHTML = `
-            <div class="day-header">${date}</div>
-            <div class="note">${note||""}</div>
-            <div class="toggles">
-              <button type="button" class="btn-yes">Kommer</button>
-              <button type="button" class="btn-no">Kommer ej</button>
-            </div>
-            <div class="time-inputs">
-              <input type="time" value="09:00" class="from">
-              <input type="time" value="17:00" class="to">
-            </div>
-          `;
-          const yes = card.querySelector(".btn-yes");
-          const no = card.querySelector(".btn-no");
-          const times = card.querySelector(".time-inputs");
-          yes.addEventListener("click", () => {
-            yes.classList.add("active");
-            no.classList.remove("active");
-            times.style.display = "flex";
-          });
-          no.addEventListener("click", () => {
-            no.classList.add("active");
-            yes.classList.remove("active");
-            times.style.display = "none";
-          });
-          yes.dataset.date = no.dataset.date = times.dataset.date = date;
-          grid.appendChild(card);
-        });
-      } catch (e) {
-        console.error(e);
-      }
+      const snapshot = await firebase.firestore().collection("kalender").orderBy("date").get();
+      const grid = document.getElementById("calendarGrid"); grid.innerHTML = "";
+      snapshot.forEach(doc => {
+        const { date, note, color } = doc.data();
+        const card = document.createElement("div"); card.className = "day-card";
+        if(color) card.style.background = color;
+        card.innerHTML = `
+          <div class="day-header">${date}</div>
+          <div class="note">${note||""}</div>
+          <div class="toggles">
+            <button type="button" class="btn-yes">Kommer</button>
+            <button type="button" class="btn-no">Kommer ej</button>
+          </div>
+          <div class="time-inputs">
+            <input type="time" value="09:00" class="from">
+            <input type="time" value="17:00" class="to">
+          </div>
+        `;
+        const yes = card.querySelector(".btn-yes"), no = card.querySelector(".btn-no");
+        const times = card.querySelector(".time-inputs");
+        yes.addEventListener("click", ()=>{ yes.classList.add("active"); no.classList.remove("active"); times.style.display="flex"; });
+        no.addEventListener("click", ()=>{ no.classList.add("active"); yes.classList.remove("active"); times.style.display="none"; });
+        yes.dataset.date = no.dataset.date = times.dataset.date = date;
+        grid.appendChild(card);
+      });
     }
+
     window.addEventListener("load", loadCalendar);
 
-    document.getElementById("form").addEventListener("submit", async e => {
+    // Globala markera-knappar
+    document.getElementById("selectAllYes").addEventListener("click", ()=>{
+      document.querySelectorAll(".btn-yes").forEach(b=>b.click());
+    });
+    document.getElementById("selectAllNo").addEventListener("click", ()=>{
+      document.querySelectorAll(".btn-no").forEach(b=>b.click());
+    });
+
+    // Globala tidfält
+    document.getElementById("applyTimes").addEventListener("click", ()=>{
+      const from = document.getElementById("globalFrom").value;
+      const to   = document.getElementById("globalTo").value;
+      document.querySelectorAll(".from").forEach(i=>i.value=from);
+      document.querySelectorAll(".to").forEach(i=>i.value=to);
+    });
+
+    // Submit
+    document.getElementById("form").addEventListener("submit", async e=>{
       e.preventDefault();
       const parentName = document.getElementById("parentName").value;
       const youthName = document.getElementById("youthName").value;
       const parentEmail = document.getElementById("parentEmail").value;
-      const cards = document.querySelectorAll(".day-card");
-      const svar = Array.from(cards).map(card => ({
+      const svar = Array.from(document.querySelectorAll(".day-card")).map(card=>({
         date: card.querySelector(".btn-yes").dataset.date,
         kommer: card.querySelector(".btn-yes").classList.contains("active"),
         ejkommer: card.querySelector(".btn-no").classList.contains("active"),
@@ -187,18 +131,14 @@
         to: card.querySelector(".to").value
       }));
       await firebase.firestore().collection("narvaro").add({
-        parentName, youthName, parentEmail, svar,
-        tidpunkt: firebase.firestore.Timestamp.now()
+        parentName, youthName, parentEmail, svar, tidpunkt: firebase.firestore.Timestamp.now()
       });
-      let summary = `Ungdom: ${youthName}\n\n` +
-        svar.map(s =>
-          `${s.date}: ${s.kommer ? "Kommer" : s.ejkommer ? "Kommer ej" : "Osäker"}, från kl ${s.from} till kl ${s.to}`
-        ).join("\n");
-      const ok = await skickaBekraftelse(parentName, parentEmail, youthName, summary);
-      document.getElementById("status").textContent = ok
-        ? "✅ Tack! Din anmälan är inskickad."
-        : "⚠️ Ett fel uppstod vid e-postutskick.";
-      if (ok) e.target.reset();
+      let summary = `Ungdom: ${youthName}\n\n`+svar.map(s=>
+        `${s.date}: ${s.kommer?"Kommer":s.ejkommer?"Kommer ej":"Osäker"}, från kl ${s.from} till kl ${s.to}`
+      ).join("\n");
+      const ok = await skickaBekraftelse(parentName,parentEmail,youthName,summary);
+      document.getElementById("status").textContent = ok?"✅ Tack! Din anmälan är inskickad.":"⚠️ Fel vid e-post!";
+      if(ok) e.target.reset();
     });
   </script>
 </body>
