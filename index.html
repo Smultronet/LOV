@@ -15,157 +15,136 @@
     window.onload = () => emailjs.init("64vIY_pmg15yG6lYv");
   </script>
   <script src="email.js"></script>
+<style>
+  body {
+    font-family: "Source Sans Pro", sans-serif;
+    background: #f5f5f5;
+    margin: 2rem;
+  }
+  header { display: flex; align-items: center; margin-bottom: 1rem; }
+  header img { height: 60px; margin-right: 1rem; }
+  h1 { color: #003366; font-size: 1.75rem; margin: 0; }
 
-  <style>
-    body {
-      font-family: "Source Sans Pro", sans-serif;
-      background: #f5f5f5;
-      margin: 2rem;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    header img {
-      height: 60px;
-      margin-right: 1rem;
-    }
-    h1 {
-      color: #003366;
-      font-size: 1.75rem;
-      margin: 0;
-    }
-    form {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom: 1rem;
-    }
-    label {
-      display: block;
-      margin-bottom: 0.75rem;
-    }
-    input, input[type="time"] {
-      width: 100%;
-      padding: 0.5rem;
-      box-sizing: border-box;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .controls > * {
-      flex: 1;
-      min-width: 120px;
-    }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
-    }
-    .day-card {
-      display: flex;
-      flex-direction: column;
-      background: #e3f2fd;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 1rem 1rem 3rem;
-      box-sizing: border-box;
-      overflow-wrap: break-word;
-    }
-    .day-card[data-closed] {
-      background: #fdecea;
-      color: #a94442;
-      justify-content: center;
-      text-align: center;
-    }
-    .day-header {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #003366;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .note {
-      flex: 1 1 auto;
-      margin-bottom: 0.5rem;
-      font-size: 0.9rem;
-      white-space: normal;
-      overflow-wrap: break-word;
-    }
-    .toggles {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-top: auto;
-    }
-    .day-card[data-closed] .toggles,
-    .day-card[data-closed] .time-inputs {
-      display: none !important;
-    }
-    .toggles button {
-      width: 100%;
-      padding: 0.5rem;
-      border: 2px solid #ccc;
-      border-radius: 4px;
-      background: #fafafa;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
-      white-space: nowrap;
-      text-align: center;
-    }
-    .toggles button.active {
-      background: #4a90e2;
-      color: #fff;
-      border-color: #4a90e2;
-    }
-    .toggles button:hover {
-      background: #e1f0ff;
-    }
-    .time-inputs {
-      display: none;
-      flex-direction: column;
-      gap: 0.3rem;
-      margin-top: 0.5rem;
-    }
-    .time-inputs input {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button[type="button"] {
-      margin-right: 0.5rem;
-      background: #0072c6;
-      color: #fff;
-      border: none;
-      border-radius: 3px;
-      padding: 0.4rem 0.8rem;
-      cursor: pointer;
-    }
-    button[type="button"]:hover {
-      background: #005a9e;
-    }
-    button[type="submit"] {
-      background: #0055a5;
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button[type="submit"]:hover {
-      background: #004080;
-    }
-    #status {
-      font-weight: bold;
-      margin-top: 0.5rem;
-    }
-  </style>
+  form {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+  }
+  label { display: block; margin-bottom: 0.75rem; }
+  input, input[type="time"] {
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .controls > * { flex: 1; min-width: 120px; }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .day-card {
+    display: flex;
+    flex-direction: column;
+    background: #e3f2fd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1rem 1rem 3rem; /* extra underlag för knappar */
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+  }
+  .day-header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #003366;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .note {
+    flex: 1 1 auto;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* Vertical toggles */
+  .toggles {
+    display: flex;
+    flex-direction: column;  /* stapla knappar ovanpå varandra */
+    gap: 0.5rem;
+    margin-top: auto;        /* tryck ner till botten */
+  }
+  .toggles button {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background: #fafafa;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .toggles button.active {
+    background: #4a90e2;
+    color: #fff;
+    border-color: #4a90e2;
+  }
+  .toggles button:hover {
+    background: #e1f0ff;
+  }
+
+  .time-inputs {
+    display: none;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+  }
+  .time-inputs input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  button[type="button"] {
+    margin-right: 0.5rem;
+    background: #0072c6;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+  }
+  button[type="button"]:hover { background: #005a9e; }
+
+  button[type="submit"] {
+    background: #0055a5;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button[type="submit"]:hover { background: #004080; }
+
+  #status {
+    font-weight: bold;
+    margin-top: 0.5rem;
+  }
+</style>
+
 </head>
 <body>
   <header>
@@ -178,16 +157,20 @@
     <label>Ungdomens namn:<input type="text" id="youthName" required></label>
     <label>Förälders e-post:<input type="email" id="parentEmail" required></label>
 
+    <!-- Globala kontroller -->
     <div class="controls">
-      <button type="button" id="selectAllYes">Alla kommer</button>
-      <button type="button" id="selectAllNo">Kommer ingen dag</button>
-      <div><label>Från alla:<input type="time" id="globalFrom" value="09:00"></label></div>
-      <div><label>Till alla:<input type="time" id="globalTo" value="17:00"></label></div>
+      <button type="button" id="selectAllYes">Kommer alla dagar</button>
+      <button type="button" id="selectAllNo">kommer ingen dag</button>
+      <div>
+        <label>Från alla:<input type="time" id="globalFrom" value="09:00"></label>
+      </div>
+      <div>
+        <label>Till alla:<input type="time" id="globalTo" value="17:00"></label>
+      </div>
       <button type="button" id="applyTimes">Tilldela tider</button>
     </div>
 
     <div class="calendar-grid" id="calendarGrid"></div>
-
     <button type="submit">Skicka närvaro</button>
   </form>
 
@@ -196,94 +179,72 @@
   <script>
     async function loadCalendar() {
       const snapshot = await firebase.firestore().collection("kalender").orderBy("date").get();
-      const grid = document.getElementById("calendarGrid");
-      grid.innerHTML = "";
+      const grid = document.getElementById("calendarGrid"); grid.innerHTML = "";
       snapshot.forEach(doc => {
-        const { date, note, color, closed } = doc.data();
-        const card = document.createElement("div");
-        card.className = "day-card";
-        if (color) card.style.background = color;
-        if (closed) card.setAttribute("data-closed", "");
-
-        if (closed) {
-          card.innerHTML = `
-            <div class="day-header">${date}</div>
-            <div class="note">${note}</div>
-          `;
-        } else {
-          card.innerHTML = `
-            <div class="day-header">${date}</div>
-            <div class="note">${note}</div>
-            <div class="toggles">
-              <button type="button" class="btn-yes">Kommer</button>
-              <button type="button" class="btn-no">Kommer ej</button>
-            </div>
-            <div class="time-inputs">
-              <input type="time" value="09:00" class="from">
-              <input type="time" value="17:00" class="to">
-            </div>
-          `;
-          const yes = card.querySelector(".btn-yes");
-          const no  = card.querySelector(".btn-no");
-          const times = card.querySelector(".time-inputs");
-          yes.addEventListener("click", () => {
-            yes.classList.add("active");
-            no.classList.remove("active");
-            times.style.display = "flex";
-          });
-          no.addEventListener("click", () => {
-            no.classList.add("active");
-            yes.classList.remove("active");
-            times.style.display = "none";
-          });
-          yes.dataset.date = no.dataset.date = times.dataset.date = date;
-        }
+        const { date, note, color } = doc.data();
+        const card = document.createElement("div"); card.className = "day-card";
+        if(color) card.style.background = color;
+        card.innerHTML = `
+          <div class="day-header">${date}</div>
+          <div class="note">${note||""}</div>
+          <div class="toggles">
+            <button type="button" class="btn-yes">Kommer</button>
+            <button type="button" class="btn-no">Kommer ej</button>
+          </div>
+          <div class="time-inputs">
+            <input type="time" value="09:00" class="from">
+            <input type="time" value="17:00" class="to">
+          </div>
+        `;
+        const yes = card.querySelector(".btn-yes"), no = card.querySelector(".btn-no");
+        const times = card.querySelector(".time-inputs");
+        yes.addEventListener("click", ()=>{ yes.classList.add("active"); no.classList.remove("active"); times.style.display="flex"; });
+        no.addEventListener("click", ()=>{ no.classList.add("active"); yes.classList.remove("active"); times.style.display="none"; });
+        yes.dataset.date = no.dataset.date = times.dataset.date = date;
         grid.appendChild(card);
       });
     }
 
     window.addEventListener("load", loadCalendar);
 
-    document.getElementById("selectAllYes").addEventListener("click", () => {
-      document.querySelectorAll(".btn-yes").forEach(b => b.click());
+    // Globala markera-knappar
+    document.getElementById("selectAllYes").addEventListener("click", ()=>{
+      document.querySelectorAll(".btn-yes").forEach(b=>b.click());
     });
-    document.getElementById("selectAllNo").addEventListener("click", () => {
-      document.querySelectorAll(".btn-no").forEach(b => b.click());
-    });
-    document.getElementById("applyTimes").addEventListener("click", () => {
-      const from = document.getElementById("globalFrom").value;
-      const to   = document.getElementById("globalTo").value;
-      document.querySelectorAll(".from").forEach(i => i.value = from);
-      document.querySelectorAll(".to").forEach(i => i.value = to);
+    document.getElementById("selectAllNo").addEventListener("click", ()=>{
+      document.querySelectorAll(".btn-no").forEach(b=>b.click());
     });
 
-    document.getElementById("form").addEventListener("submit", async e => {
+    // Globala tidfält
+    document.getElementById("applyTimes").addEventListener("click", ()=>{
+      const from = document.getElementById("globalFrom").value;
+      const to   = document.getElementById("globalTo").value;
+      document.querySelectorAll(".from").forEach(i=>i.value=from);
+      document.querySelectorAll(".to").forEach(i=>i.value=to);
+    });
+
+    // Submit
+    document.getElementById("form").addEventListener("submit", async e=>{
       e.preventDefault();
-      const parentName  = document.getElementById("parentName").value;
-      const youthName   = document.getElementById("youthName").value;
+      const parentName = document.getElementById("parentName").value;
+      const youthName = document.getElementById("youthName").value;
       const parentEmail = document.getElementById("parentEmail").value;
-      const svar = Array.from(document.querySelectorAll(".day-card")).map(card => {
-        return {
-          date:    card.querySelector(".btn-yes")?.dataset.date,
-          kommer:  card.querySelector(".btn-yes")?.classList.contains("active"),
-          ejkommer:card.querySelector(".btn-no")?.classList.contains("active"),
-          from:    card.querySelector(".from")?.value,
-          to:      card.querySelector(".to")?.value
-        };
-      });
+      const svar = Array.from(document.querySelectorAll(".day-card")).map(card=>({
+        date: card.querySelector(".btn-yes").dataset.date,
+        kommer: card.querySelector(".btn-yes").classList.contains("active"),
+        ejkommer: card.querySelector(".btn-no").classList.contains("active"),
+        from: card.querySelector(".from").value,
+        to: card.querySelector(".to").value
+      }));
       await firebase.firestore().collection("narvaro").add({
-        parentName, youthName, parentEmail, svar,
-        tidpunkt: firebase.firestore.Timestamp.now()
+        parentName, youthName, parentEmail, svar, tidpunkt: firebase.firestore.Timestamp.now()
       });
-      let summary = `Ungdom: ${youthName}\n\n` +
-        svar.map(s =>
-          `${s.date}: ${s.kom��mer ? "Kommer" : s.ejkommer ? "Kommer ej" : "Osäker"}, från kl ${s.from} till kl ${s.to}`
-        ).join("\n");
-      const ok = await skickaBekräftelse(parentName, parentEmail, youthName, summary);
-      document.getElementById("status").textContent = ok
-        ? "✅ Tack! Din anmälan är inskickad."
-        : "⚠️ Ett fel uppstod vid e-postutskick.";
-      if (ok) e.target.reset();
+      let summary = `Ungdom: ${youthName}\n\n`+svar.map(s=>
+        `${s.date}: ${s.kommer?"Kommer":s.ejkommer?"Kommer ej":"Osäker"}, från kl ${s.from} till kl ${s.to}`
+      ).join("\n");
+      const ok = await skickaBekraftelse(parentName,parentEmail,youthName,summary);
+      document.getElementById("status").textContent = ok?"✅ Tack! Din anmälan är inskickad.":"⚠️ Fel vid e-post!";
+      if(ok) e.target.reset();
     });
   </script>
 </body>
