@@ -73,10 +73,12 @@
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     padding: 1rem;
-    min-height: 140px;
     display: flex;
     flex-direction: column;
-    overflow-wrap: break-word;    /* Bryt långa ord */
+    justify-content: space-between; /* Separerar header/note från toggles */
+    min-height: 160px;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
   }
   .day-header {
     font-weight: 600;
@@ -84,19 +86,21 @@
     color: #003366;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;      /* Kortar om datumsträngen blir för lång */
+    text-overflow: ellipsis;
   }
   .note {
     font-size: 0.9rem;
     margin-bottom: 0.75rem;
-    flex-grow: 1;
-    white-space: normal;           /* Tillåt radbrytningar */
-    overflow-wrap: break-word;     /* Bryt vid behov */
+    white-space: normal;
+    overflow-wrap: break-word;
+    /* Ta inte för mycket plats */
+    flex: 0 1 auto;
   }
   .toggles {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    flex-shrink: 0; /* Viktigt: få inte toggles att krympa bort */
   }
   .toggles button {
     flex: 1;
@@ -120,6 +124,7 @@
     display: none;
     flex-direction: column;
     gap: 0.3rem;
+    margin-top: 0.5rem; /* Ge lite avstånd */
   }
   .time-inputs input {
     border: 1px solid #ccc;
