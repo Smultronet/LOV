@@ -2,24 +2,8 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Sommarledighet 2025 – Närvaroanmälan</title>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <!-- Din Firebase‑konfiguration -->
-  <script src="firebase-config.js"></script>
-
-  <!-- EmailJS SDK v3 -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-  <script>
-    window.onload = () => {
-      // Initiera EmailJS med din Public Key
-      emailjs.init("64vIY_pmg15yG6lYv");
-    };
-  </script>
-  <!-- Din e‑post‑logik -->
-  <script src="email.js"></script>
+  <title>Sommarledighet 2025 – Närvaroanmälan</title>
+  <!-- Firebase & EmailJS inkl. dina befintliga scripts här... -->
 
   <style>
     body {
@@ -27,205 +11,145 @@
       background: #f5f5f5;
       margin: 2rem;
     }
-    header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1rem;
     }
-    header img {
-      height: 60px;
-      margin-right: 1rem;
-    }
-    h1 {
-      color: #003366;
-      font-size: 1.75rem;
-      margin: 0;
-    }
-    form {
+    .day-card {
       background: #fff;
-      padding: 1rem;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    label {
-      display: block;
+    .day-header {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #003366;
+    }
+    .note {
+      font-size: 0.9rem;
       margin-bottom: 0.75rem;
     }
-    input[type="text"],
-    input[type="email"],
-    input[type="time"] {
-      width: 100%;
-      padding: 0.5rem;
-      box-sizing: border-box;
+    .toggles {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
     }
-    button[type="button"] {
-      margin-right: 0.5rem;
-      background: #0072c6;
-      color: #fff;
-      border: none;
-      border-radius: 3px;
-      padding: 0.4rem 0.8rem;
+    .toggles button {
+      flex: 1;
+      padding: 0.4rem;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      background: #fafafa;
       cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
     }
-    button[type="button"]:hover {
-      background: #005a9e;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 0.5rem;
-      text-align: center;
-    }
-    th {
-      background: #ededed;
-    }
-    .red  { background: #ffcccc; }
-    .blue { background: #cce5ff; }
-    button[type="submit"] {
+    .toggles button.active {
       background: #0055a5;
       color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
+      border-color: #0055a5;
+    }
+    .time-inputs {
+      display: none;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .time-inputs input {
+      width: 100%;
+      padding: 0.3rem;
+      border: 1px solid #ccc;
       border-radius: 4px;
-      cursor: pointer;
+      box-sizing: border-box;
     }
-    button[type="submit"]:hover {
-      background: #004080;
-    }
-    #status {
-      font-weight: bold;
-      margin-top: 0.5rem;
+    @media(max-width:600px) {
+      .calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
   </style>
 </head>
 <body>
-
-  <header>
-    <img src="stockholm-logo.jpg" alt="Stockholms stad logotyp">
-    <h1>Sommarledighet 2025 – Närvaroanmälan</h1>
-  </header>
-
+  <h1>Sommarledighet 2025 – Närvaroanmälan</h1>
   <form id="form">
-    <label>
-      Förälders namn:
-      <input type="text" id="parentName" required>
-    </label>
-    <label>
-      Ungdomens namn:
-      <input type="text" id="youthName" required>
-    </label>
-    <label>
-      Förälders e‑post:
-      <input type="email" id="parentEmail" required>
-    </label>
+    <!-- Dina fält för förälder, ungdom o e-post här... -->
 
-    <!-- Knapp för att markera alla -->
-    <div>
-      <button type="button" id="selectAllYes">Alla kommer</button>
-      <button type="button" id="selectAllNo">Alla kommer ej</button>
+    <div class="calendar-grid" id="calendarGrid">
+      <!-- JS fyller på här -->
     </div>
-
-    <table id="calendar">
-      <thead>
-        <tr>
-          <th>Datum</th>
-          <th>Aktivitet</th>
-          <th>Kommer</th>
-          <th>Kommer ej</th>
-          <th>Från</th>
-          <th>Till</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
 
     <button type="submit">Skicka närvaro</button>
   </form>
-
   <p id="status"></p>
 
   <script>
-    // Ladda kalendern från Firestore
     async function loadCalendar() {
-      try {
-        const snapshot = await firebase.firestore()
-          .collection("kalender")
-          .orderBy("date")
-          .get();
-        const tbody = document.querySelector("#calendar tbody");
-        tbody.innerHTML = "";
-        snapshot.forEach(doc => {
-          const { date, note, color } = doc.data();
-          const tr = document.createElement("tr");
-          if (color) tr.classList.add(color);
-          tr.innerHTML = `
-            <td>${date}</td>
-            <td>${note}</td>
-            <td><input type="checkbox" data-date="${date}" class="kommer"></td>
-            <td><input type="checkbox" data-date="${date}" class="ejkommer"></td>
-            <td><input type="time" value="09:00" data-date="${date}" class="from"></td>
-            <td><input type="time" value="17:00" data-date="${date}" class="to"></td>
-          `;
-          tbody.appendChild(tr);
+      const snapshot = await firebase.firestore()
+        .collection("kalender").orderBy("date").get();
+      const grid = document.getElementById("calendarGrid");
+      grid.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const { date, note, color } = doc.data();
+        const card = document.createElement("div");
+        card.className = "day-card";
+        if(color) card.style.background = color;
+
+        card.innerHTML = `
+          <div class="day-header">${date}</div>
+          <div class="note">${note || ""}</div>
+          <div class="toggles">
+            <button type="button" class="btn-yes">Kommer</button>
+            <button type="button" class="btn-no">Kommer ej</button>
+          </div>
+          <div class="time-inputs">
+            <input type="time" value="09:00" class="from">
+            <input type="time" value="17:00" class="to">
+          </div>
+        `;
+        // Event­listeners för toggles
+        const yes = card.querySelector(".btn-yes");
+        const no  = card.querySelector(".btn-no");
+        const times = card.querySelector(".time-inputs");
+
+        yes.addEventListener("click", () => {
+          yes.classList.add("active");
+          no.classList.remove("active");
+          times.style.display = "flex";
         });
-      } catch (err) {
-        console.error("Fel vid loadCalendar():", err);
-      }
+        no.addEventListener("click", () => {
+          no.classList.add("active");
+          yes.classList.remove("active");
+          times.style.display = "none";
+        });
+
+        // Spara data i dataset
+        yes.dataset.date = no.dataset.date = times.dataset.date = date;
+
+        grid.appendChild(card);
+      });
     }
+
     window.addEventListener("load", loadCalendar);
 
-    // Knappfunktioner för att markera alla
-    document.getElementById("selectAllYes").addEventListener("click", () => {
-      document.querySelectorAll(".kommer").forEach(cb => cb.checked = true);
-      document.querySelectorAll(".ejkommer").forEach(cb => cb.checked = false);
-    });
-    document.getElementById("selectAllNo").addEventListener("click", () => {
-      document.querySelectorAll(".ejkommer").forEach(cb => cb.checked = true);
-      document.querySelectorAll(".kommer").forEach(cb => cb.checked = false);
-    });
-
-    // Hantera formulärskick
-    document.getElementById("form").addEventListener("submit", async function(e) {
+    document.getElementById("form").addEventListener("submit", async e => {
       e.preventDefault();
-      const namn   = document.getElementById("parentName").value;
-      const ungdom = document.getElementById("youthName").value;
-      const email  = document.getElementById("parentEmail").value;
-      const rows   = document.querySelectorAll("#calendar tbody tr");
+      // Hämta förälder/ungdom etc...
 
-      const svar = Array.from(rows).map(tr => {
-        const date     = tr.querySelector(".kommer").dataset.date;
-        const kommer   = tr.querySelector(".kommer").checked;
-        const ejkommer = tr.querySelector(".ejkommer").checked;
-        const from     = tr.querySelector(".from").value;
-        const to       = tr.querySelector(".to").value;
+      const cards = document.querySelectorAll(".day-card");
+      const svar = Array.from(cards).map(card => {
+        const date = card.querySelector(".btn-yes").dataset.date;
+        const kommer = card.querySelector(".btn-yes").classList.contains("active");
+        const ejkommer = card.querySelector(".btn-no").classList.contains("active");
+        const from = card.querySelector(".from").value;
+        const to   = card.querySelector(".to").value;
         return { date, kommer, ejkommer, from, to };
       });
 
-      // Spara i Firestore
-      await firebase.firestore().collection("narvaro").add({
-        namn, ungdom, email, svar,
-        tidpunkt: firebase.firestore.Timestamp.now()
-      });
-
-      // Sammanfattning
-      let summary = `Ungdom: ${ungdom}\n\n`;
-      summary += svar.map(s =>
-        `${s.date}: ${s.kommer ? "Kommer" : s.ejkommer ? "Kommer ej" : "Osäker"}, från kl ${s.from} till kl ${s.to}`
-      ).join("\n");
-
-      // Skicka e‑post
-      try {
-        await skickaBekraftelse(namn, email, ungdom, summary);
-        document.getElementById("status").textContent = "✅ Tack! Din anmälan är inskickad.";
-        this.reset();
-      } catch {
-        document.getElementById("status").textContent = "⚠️ Ett fel uppstod vid e‑postutskick.";
-      }
+      // Spara i Firestore & skicka e-post som tidigare...
     });
   </script>
 </body>
