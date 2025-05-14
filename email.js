@@ -1,11 +1,10 @@
 // email.js
 async function skickaBekraftelse(parentName, parentEmail, youthName, summary) {
-  // Föräldrabekräftelse
+  // 1) Skicka först till föräldern
   try {
     await emailjs.send("service_1n11tf8", "template_o3xaajo", {
       from_email:   "no-reply@stockholm.se",
       to_email:     parentEmail,
-      cc_emails:    "karim.nawar@stockholm.se, tina.han.yeung@stockholm.se, marie.faniadis@stockholm.se",
       parent_name:  parentName,
       parent_email: parentEmail,
       child_name:   youthName,
@@ -16,7 +15,7 @@ async function skickaBekraftelse(parentName, parentEmail, youthName, summary) {
     return false;
   }
 
-  // Intern notis till kollegor
+  // 2) Skicka ett mejl vardera till kollegorna
   const colleagues = [
     "karim.nawar@stockholm.se",
     "tina.han.yeung@stockholm.se",
