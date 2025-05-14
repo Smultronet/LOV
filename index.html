@@ -21,20 +21,10 @@
     background: #f5f5f5;
     margin: 2rem;
   }
-  header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  header img {
-    height: 60px;
-    margin-right: 1rem;
-  }
-  h1 {
-    color: #003366;
-    font-size: 1.75rem;
-    margin: 0;
-  }
+  header { display: flex; align-items: center; margin-bottom: 1rem; }
+  header img { height: 60px; margin-right: 1rem; }
+  h1 { color: #003366; font-size: 1.75rem; margin: 0; }
+
   form {
     background: #fff;
     padding: 1rem;
@@ -42,39 +32,35 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     margin-bottom: 1rem;
   }
-  label {
-    display: block;
-    margin-bottom: 0.75rem;
-  }
-  input,
-  input[type="time"] {
+  label { display: block; margin-bottom: 0.75rem; }
+  input, input[type="time"] {
     width: 100%;
     padding: 0.5rem;
     box-sizing: border-box;
   }
+
   .controls {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1rem;
   }
-  .controls > * {
-    flex: 1;
-    min-width: 120px;
-  }
+  .controls > * { flex: 1; min-width: 120px; }
+
   .calendar-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 1rem;
     margin: 1rem 0;
   }
+
   .day-card {
     display: flex;
     flex-direction: column;
-    background: #e3f2fd; /* Mjuk ljusblå bakgrund */
+    background: #e3f2fd;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 1rem 1rem 3rem; /* Extra bottom-padding för knapparna */
+    padding: 1rem 1rem 3rem; /* extra underlag för knappar */
     box-sizing: border-box;
     overflow-wrap: break-word;
   }
@@ -93,20 +79,24 @@
     white-space: normal;
     overflow-wrap: break-word;
   }
+
+  /* Vertical toggles */
   .toggles {
     display: flex;
+    flex-direction: column;  /* stapla knappar ovanpå varandra */
     gap: 0.5rem;
-    margin-top: auto;    /* Trycker ner toggles till kortets botten */
+    margin-top: auto;        /* tryck ner till botten */
   }
   .toggles button {
-    flex: 1;
-    padding: 0.4rem;
+    width: 100%;
+    padding: 0.5rem;
     border: 2px solid #ccc;
     border-radius: 4px;
     background: #fafafa;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
     white-space: nowrap;
+    text-align: center;
   }
   .toggles button.active {
     background: #4a90e2;
@@ -116,6 +106,7 @@
   .toggles button:hover {
     background: #e1f0ff;
   }
+
   .time-inputs {
     display: none;
     flex-direction: column;
@@ -126,6 +117,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
+
   button[type="button"] {
     margin-right: 0.5rem;
     background: #0072c6;
@@ -135,9 +127,8 @@
     padding: 0.4rem 0.8rem;
     cursor: pointer;
   }
-  button[type="button"]:hover {
-    background: #005a9e;
-  }
+  button[type="button"]:hover { background: #005a9e; }
+
   button[type="submit"] {
     background: #0055a5;
     color: #fff;
@@ -146,15 +137,13 @@
     border-radius: 4px;
     cursor: pointer;
   }
-  button[type="submit"]:hover {
-    background: #004080;
-  }
+  button[type="submit"]:hover { background: #004080; }
+
   #status {
     font-weight: bold;
     margin-top: 0.5rem;
   }
 </style>
-
 
 </head>
 <body>
