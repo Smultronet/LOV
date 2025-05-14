@@ -71,11 +71,10 @@
   .day-card {
     display: flex;
     flex-direction: column;
-    background: #fff;
+    background: #e3f2fd; /* Mjuk ljusblå bakgrund */
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 1rem;
-    min-height: 160px;
+    padding: 1rem 1rem 3rem; /* Extra bottom-padding för knapparna */
     box-sizing: border-box;
     overflow-wrap: break-word;
   }
@@ -97,8 +96,7 @@
   .toggles {
     display: flex;
     gap: 0.5rem;
-    margin-top: auto;
-    flex-shrink: 0;
+    margin-top: auto;    /* Trycker ner toggles till kortets botten */
   }
   .toggles button {
     flex: 1;
