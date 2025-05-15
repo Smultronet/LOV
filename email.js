@@ -1,15 +1,20 @@
 // email.js
-async function skickaBekraftelse(parentName, parentEmail, youthName, summary) {
+async function skickaBekraftelse(parentName, parentEmail, youthName, summary, kommentar) {
+  const common = {
+    from_email:   "no-reply@stockholm.se",
+    cc_emails:    "karim.nawar@stockholm.se, tina.han.yeung@stockholm.se, marie.faniadis@stockholm.se",
+    parent_name:  parentName,
+    parent_email: parentEmail,
+    child_name:   youthName,
+    summary,
+    kommentar     // skickar med kommentaren
+  };
+
   try {
-    // Ett mejl: till föräldern, med kollegor i CC
+    // Till förälder + CC
     await emailjs.send("service_1n11tf8", "template_o3xaajo", {
-      from_email:   "no-reply@stockholm.se",
-      to_email:     parentEmail,
-      cc_emails:    "karim.nawar@stockholm.se, tina.han.yeung@stockholm.se, marie.faniadis@stockholm.se",
-      parent_name:  parentName,
-      parent_email: parentEmail,
-      child_name:   youthName,
-      summary:      summary
+      ...common,
+      to_email: parentEmail
     });
     return true;
   } catch (err) {
