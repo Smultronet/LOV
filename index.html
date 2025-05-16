@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -257,12 +258,11 @@
     <img src="stockholm-logo.png" alt="Stockholms stad logotyp">
     <h1>Höstlov 2025 – Närvaroanmälan</h1>
     
-  <!-- Dynamisk banner för installation -->
-<div id="install-banner" style="display:none; background:#e6f0fa; color:#003366; padding:0.75rem 1rem; font-size:0.9rem; display:flex; align-items:center; justify-content:space-between;">
-  <div id="install-text"></div>
-  <button id="btnInstall" style="background:#0055a5; color:white; border:none; padding:0.4rem 0.8rem; font-size:0.85rem; border-radius:4px; cursor:pointer;">Ladda ner APP</button>
+   <!-- Banner för att installera som app -->
+<div id="install-banner" style="display: none; background: #e6f0fa; color: #003366; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; justify-content: space-between;">
+  <div> </div>
+  <button id="btnInstall" style="background: #0055a5; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; cursor: pointer;">Installera App</button>
 </div>
-
 
   </header>
 
@@ -409,51 +409,23 @@
       }
     });
 
-<script>
 let deferredPrompt;
 const banner = document.getElementById('install-banner');
 const installBtn = document.getElementById('btnInstall');
-const installText = document.getElementById('install-text');
 
-function isInStandaloneMode() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-}
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  banner.style.display = 'flex'; // Visa bannern
+});
 
-function isiOS() {
-  return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-}
-
-function isAndroid() {
-  return /android/.test(window.navigator.userAgent.toLowerCase());
-}
-
-if (!isInStandaloneMode()) {
-  // ANDROID
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (isAndroid()) {
-      banner.style.display = 'flex';
-    }
-  });
-
-  installBtn.addEventListener('click', async () => {
-    banner.style.display = 'none';
-    deferredPrompt.prompt();
-    const result = await deferredPrompt.userChoice;
-    console.log('Install result:', result.outcome);
-    deferredPrompt = null;
-  });
-
-  // iOS – visa manuell instruktion
-  if (isiOS()) {
-    banner.style.display = 'flex';
-    installText.innerHTML = `📱 Tryck på <strong>🔼 Dela</strong> och välj <strong>"Lägg till på hemskärmen"</strong>`;
-    installBtn.style.display = 'none'; // iOS kräver manuell installation
-  }
-}
-</script>
-
+installBtn.addEventListener('click', async () => {
+  banner.style.display = 'none';
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+  console.log('User response to prompt:', choice.outcome);
+  deferredPrompt = null;
+});
   </script>
 </body>
 </html>
