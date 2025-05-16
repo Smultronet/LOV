@@ -254,6 +254,12 @@
 
 <body>
   <header>
+    <!-- Banner för att installera som app -->
+<div id="install-banner" style="display: none; background: #e6f0fa; color: #003366; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; align-items: center; justify-content: space-between;">
+  <div>📲 Installera Smultronet som app för snabbare åtkomst</div>
+  <button id="btnInstall" style="background: #0055a5; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 4px; cursor: pointer;">Ladda ner</button>
+</div>
+
     <img src="stockholm-logo.png" alt="Stockholms stad logotyp">
     <h1>Höstlov 2025 – Närvaroanmälan</h1>
   </header>
@@ -266,6 +272,9 @@
     <p><strong>EJ INLÄMNAD</strong> innebär att din ungdom inte kommer.</p>
     <p><strong>Öppettider:</strong> 09:00–17:00</p>
     <p style="margin-top:0.5rem"><em>personalen på Smultronet</em></p>
+  
+    <p><strong>Tips för iPhone:</strong> Tryck på <span style="font-size: 1.2em;">📤</span> och välj <strong>"Lägg till på hemskärmen"</strong> för att spara Smultronet som app.</p>
+
   </div>
 
   <form id="form">
@@ -304,22 +313,6 @@
     <h2>Din sammanfattning</h2>
     <pre id="summary-content"></pre>
   </div>
-
-  <!-- Install‐knapp -->
-  <button id="btnInstall" style="
-    display: none;
-    position: fixed;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--blue-2);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    z-index: 1000;
-  ">Ladda ner appen</button>
 
   <script>
     async function loadCalendar() {
@@ -417,21 +410,23 @@
       }
     });
 
-    /* PWA-install-logik */
-    let deferredPrompt;
-    const installBtn = document.getElementById('btnInstall');
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'block';
-    });
-    installBtn.addEventListener('click', async () => {
-      installBtn.style.display = 'none';
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(outcome);
-      deferredPrompt = null;
-    });
+let deferredPrompt;
+const banner = document.getElementById('install-banner');
+const installBtn = document.getElementById('btnInstall');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  banner.style.display = 'flex'; // Visa bannern
+});
+
+installBtn.addEventListener('click', async () => {
+  banner.style.display = 'none';
+  deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
+  console.log('User response to prompt:', choice.outcome);
+  deferredPrompt = null;
+});
   </script>
 </body>
 </html>
