@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Höstlov 2025 – Närvaroanmälan</title>
 
+  <!-- PWA-manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#005AA5">
+
   <!-- Firebase + EmailJS -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -48,7 +52,6 @@
       background: none;
     }
     header h1 {
-      font-family: "Source Sans Pro", sans-serif;
       font-size: 1.25rem;
       margin: 0;
     }
@@ -301,21 +304,22 @@
     <h2>Din sammanfattning</h2>
     <pre id="summary-content"></pre>
   </div>
-<!-- Install‐knapp -->
-<button id="btnInstall" style="
-  display: none;
-  position: fixed;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--blue-2);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  z-index: 1000;
-">Ladda ner appen</button>
+
+  <!-- Install‐knapp -->
+  <button id="btnInstall" style="
+    display: none;
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--blue-2);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    z-index: 1000;
+  ">Ladda ner appen</button>
 
   <script>
     async function loadCalendar() {
@@ -326,7 +330,6 @@
         const card = document.createElement("div"); card.className="day-card";
         if(color) card.style.background = color;
         if(closed) card.setAttribute("data-closed","");
-
         if(closed) {
           card.innerHTML = `<div class="day-header">${date}</div><div class="note">${note}</div>`;
         } else {
@@ -413,32 +416,22 @@
         e.target.reset();
       }
     });
+
+    /* PWA-install-logik */
+    let deferredPrompt;
+    const installBtn = document.getElementById('btnInstall');
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+    installBtn.addEventListener('click', async () => {
+      installBtn.style.display = 'none';
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(outcome);
+      deferredPrompt = null;
+    });
   </script>
-  <script>
-  let deferredPrompt;
-  const installBtn = document.getElementById('btnInstall');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Förhindra standard‐prompt
-    e.preventDefault();
-    deferredPrompt = e;
-    // Visa knapp
-    installBtn.style.display = 'block';
-  });
-
-  installBtn.addEventListener('click', async () => {
-    // Dölj egen knapp
-    installBtn.style.display = 'none';
-    // Visa Chrome-dialogen
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    if (choice.outcome === 'accepted') {
-      console.log('App installerad');
-    } else {
-      console.log('Installation avböjd');
-    }
-    deferredPrompt = null;
-  });
-</script>
 </body>
 </html>
