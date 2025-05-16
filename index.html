@@ -253,6 +253,43 @@
 </head>
 
 <body>
+  <!-- Install‐banner -->
+<div id="installBanner" style="
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--blue-2);
+  color: white;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  z-index: 1000;
+">
+  <span>Ladda ner appen för enklare åtkomst!</span>
+  <button id="btnInstallBanner" style="
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    margin-left: 1rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  ">Installera</button>
+  <button id="btnCloseBanner" style="
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    position: absolute;
+    top: 0.2rem;
+    right: 0.5rem;
+    cursor: pointer;
+  ">×</button>
+</div>
+
   <header>
     <img src="stockholm-logo.png" alt="Stockholms stad logotyp">
     <h1>Höstlov 2025 – Närvaroanmälan</h1>
@@ -305,22 +342,7 @@
     <pre id="summary-content"></pre>
   </div>
 
-  <!-- Install‐knapp -->
-  <button id="btnInstall" style="
-    display: none;
-    position: fixed;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--blue-2);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    z-index: 1000;
-  ">Ladda ner appen</button>
-
+  
   <script>
     async function loadCalendar() {
       const snap = await firebase.firestore().collection("kalender").orderBy("date").get();
@@ -417,21 +439,42 @@
       }
     });
 
-    /* PWA-install-logik */
-    let deferredPrompt;
-    const installBtn = document.getElementById('btnInstall');
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'block';
-    });
-    installBtn.addEventListener('click', async () => {
-      installBtn.style.display = 'none';
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(outcome);
-      deferredPrompt = null;
-    });
+   <script>
+  let deferredPrompt;
+  const banner = document.getElementById('installBanner');
+  const btnInstall = document.getElementById('btnInstallBanner');
+  const btnClose  = document.getElementById('btnCloseBanner');
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    banner.style.display = 'block';
+  });
+
+  btnInstall.addEventListener('click', async () => {
+    banner.style.display = 'none';
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log('User response to install prompt:', outcome);
+    deferredPrompt = null;
+  });
+
+  btnClose.addEventListener('click', () => {
+    banner.style.display = 'none';
+  });
+
+  // iOS-instruktion
+  const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  const isInStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  if (isIos && !isInStandalone) {
+    banner.innerHTML = `
+      <span>För bästa upplevelse, välj Dela → Lägg till på hemskärmen</span>
+      <button id="btnCloseBanner" style="background:transparent;border:none;color:white;font-size:1.2rem;position:absolute;top:0.2rem;right:0.5rem;cursor:pointer;">×</button>
+    `;
+    banner.style.display = 'block';
+    document.getElementById('btnCloseBanner').onclick = () => banner.style.display = 'none';
+  }
+</script>
   </script>
 </body>
 </html>
