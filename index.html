@@ -2,99 +2,203 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Höstlov 2025 – Närvaroanmälan</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0055a5">
-  <link rel="apple-touch-icon" href="icon-192.png">
 
-  <!-- Firebase SDK -->
+  <!-- Firebase + EmailJS som tidigare -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-
-  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-  <script>
-    window.onload = () => emailjs.init("64vIY_pmg15yG6lYv");
-  </script>
+  <script>window.onload = () => emailjs.init("64vIY_pmg15yG6lYv");</script>
   <script src="email.js"></script>
 
   <style>
-    body { font-family:"Source Sans Pro",sans-serif; background:#ffffff; margin:2rem; }
-    header{display:flex;align-items:center;margin-bottom:1rem}
-    header img{height:60px;margin-right:1rem}
-    h1{color:#003366;font-size:1.75rem;margin:0}
+    /* Basreset och typsnitt */
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body { font-family: "Source Sans Pro", sans-serif; background:#f5f5f5; color:#333; }
 
-    form{background:#fff;padding:1rem;border-radius:5px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:1rem}
-    label{display:block;margin-bottom:0.75rem}
-    input,input[type="time"],textarea{width:100%;padding:0.5rem;box-sizing:border-box}
+    header {
+      background:#003366; color:#fff;
+      padding:1rem;
+      display:flex; align-items:center; gap:0.75rem;
+    }
+    header img { height:40px; }
+    header h1 { font-size:1.25rem; }
 
-    .info-box{background:#fff7e6;border-left:6px solid #ffa726;padding:1rem;margin-bottom:1rem;border-radius:5px;font-size:0.95rem;line-height:1.5;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
-    .info-box p{margin:0.5rem 0}
+    .info-box {
+      background:#fff;
+      border-left:4px solid #ffa726;
+      margin:1rem;
+      padding:1rem;
+      border-radius:4px;
+      font-size:0.9rem;
+      line-height:1.4;
+    }
+    .info-box h2 {
+      color:#003366; font-size:1rem; margin-bottom:0.5rem;
+    }
 
-    .controls{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1rem}
-    .controls>*{flex:1;min-width:120px}
+    form {
+      background:#fff;
+      margin:1rem;
+      padding:1rem;
+      border-radius:4px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.1);
+    }
+    form label {
+      display:block;
+      margin-top:0.75rem;
+      font-size:0.9rem;
+    }
+    form input, form textarea {
+      width:100%;
+      padding:0.6rem;
+      margin-top:0.25rem;
+      border:1px solid #ccc;
+      border-radius:4px;
+      font-size:0.9rem;
+    }
 
-    .calendar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin:1rem 0}
-    .day-card{display:flex;flex-direction:column;background:#e3f2fd;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);padding:1rem 1rem 3rem;box-sizing:border-box;overflow-wrap:break-word}
-    .day-header{font-weight:600;margin-bottom:0.5rem;color:#003366;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .note{flex:1 1 auto;margin-bottom:0.5rem;font-size:0.9rem;white-space:normal;overflow-wrap:break-word}
+    .controls {
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.5rem;
+      margin:1rem 0;
+    }
+    .controls button,
+    .controls input[type="time"] {
+      flex:1 1 45%;
+      padding:0.6rem;
+      border:none;
+      border-radius:4px;
+      font-size:0.9rem;
+    }
+    .controls button {
+      background:#0055a5;
+      color:#fff;
+    }
+    .controls button:hover { background:#004080; }
 
-    .toggles{display:flex;flex-direction:column;gap:0.5rem;margin-top:auto}
-    .toggles button{width:100%;padding:0.5rem;border:2px solid #ccc;border-radius:4px;background:#fafafa;cursor:pointer;transition:background 0.2s,border-color 0.2s;white-space:nowrap;text-align:center}
-    .toggles button.active{background:#4a90e2;color:#fff;border-color:#4a90e2}
-    .toggles button:hover{background:#e1f0ff}
+    .calendar-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:0.5rem;
+      margin-bottom:1rem;
+    }
+    .day-card {
+      background:#e3f2fd;
+      padding:0.75rem;
+      border-radius:4px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:120px;
+    }
+    .day-card[data-closed] {
+      background:#fdecea;
+      color:#a94442;
+    }
+    .day-header { font-weight:600; font-size:0.9rem; color:#003366; }
+    .note { font-size:0.85rem; margin:0.5rem 0; flex:1; }
 
-    .time-inputs{display:none;flex-direction:column;gap:0.3rem;margin-top:0.5rem}
-    .time-inputs input{border:1px solid #ccc;border-radius:4px}
+    .toggles {
+      display:flex; gap:0.25rem;
+    }
+    .toggles button {
+      flex:1; padding:0.4rem; font-size:0.85rem;
+      border:1px solid #ccc; background:#fafafa; border-radius:3px;
+    }
+    .toggles button.active {
+      background:#4a90e2; color:#fff; border-color:#4a90e2;
+    }
 
-    button[type="button"]{margin-right:0.5rem;background:#0072c6;color:#fff;border:none;border-radius:3px;padding:0.4rem 0.8rem;cursor:pointer}
-    button[type="button"]:hover{background:#005a9e}
+    .time-inputs {
+      display:none; flex-direction:column; gap:0.25rem; margin-top:0.5rem;
+    }
+    .time-inputs input { font-size:0.85rem; }
 
-    button[type="submit"]{background:#0055a5;color:#fff;border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer}
-    button[type="submit"]:hover{background:#004080}
+    button[type="submit"] {
+      width:100%;
+      background:#0055a5; color:#fff;
+      padding:0.75rem;
+      font-size:1rem;
+      border:none; border-radius:4px;
+    }
+    button[type="submit"]:hover { background:#004080; }
 
-    #status{font-weight:bold;margin-top:0.5rem}
+    #status {
+      text-align:center;
+      margin:1rem;
+      font-weight:600;
+    }
 
     /* Popup */
-    #overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:999}
-    #summary-box{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:1.5rem;border:2px solid #0055a5;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.2);max-width:90%;white-space:pre-wrap;z-index:1000}
-    #summary-box button#close-summary{position:absolute;top:0.5rem;right:0.5rem;background:transparent;border:none;font-size:1.2rem;cursor:pointer}
-    #summary-box h2{margin-top:0;color:#0055a5}
+    #overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); }
+    #summary-box {
+      display:none;
+      position:fixed;
+      top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      background:#fff;
+      padding:1rem;
+      border-radius:4px;
+      width:90%; max-width:320px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    }
+    #summary-box h2 { margin-bottom:0.5rem; color:#0055a5; font-size:1rem; }
+    #summary-box button#close-summary {
+      position:absolute; top:0.5rem; right:0.5rem;
+      background:transparent; border:none; font-size:1.2rem;
+      cursor:pointer;
+    }
+    #summary-box pre { font-size:0.85rem; white-space:pre-wrap; }
+
+    /* Mobilanpassningar */
+    @media (min-width: 600px) {
+      .calendar-grid { grid-template-columns:repeat(3,1fr); }
+      .controls { gap:1rem; }
+      .controls button, .controls input[type="time"] { flex:1; }
+    }
   </style>
 </head>
 <body>
+
   <header>
     <img src="stockholm-logo.jpg" alt="Stockholms stad logotyp">
     <h1>Höstlov 2025 – Närvaroanmälan</h1>
   </header>
 
   <div class="info-box">
-    <p><strong>Snart är höstlovet här</strong> och för vår planering av verksamheten behöver vi veta vilka ungdomar som kommer till Smultronet.</p>
-    <p>Vi kommer att ha mycket <strong>uteaktiviteter</strong> under höstlovet och det är därför viktigt att ungdomen har med sig <strong>lämpliga kläder</strong> för detta.</p>
-    <p><strong>Taxi under höstlov:</strong> Ta kontakt med skolan för att boka om färdtjänst.</p>
-    <p><strong>EJ INLÄMNAD NÄRVAROANMÄLAN</strong> innebär att er ungdom inte kommer till oss.</p>
-    <p><strong>Glöm inte färdtjänstkort eller busskort om du har!</strong></p>
-    <p><strong>OBS!</strong> Smultronets öppettider under lovet är <strong>09.00–17.00</strong>.</p>
-    <p><strong><h1>OBS! Sista anmälningsdag 06/10 2025</h1></strong></p>
-    <p style="margin-top:1rem">Med vänliga hälsningar,<br><em>personalen på Smultronet</em></p>
+    <h2>Välkommen!</h2>
+    <p><strong>Snart är höstlovet här</strong> och för vår planering behöver vi veta vilka ungdomar som kommer till Smultronet.</p>
+    <p>Vi kommer att ha många <strong>uteaktiviteter</strong> under lovet – ta med lämpliga kläder!</p>
+    <p><strong>Taxi:</strong> Kontakta skolan för att boka om färdtjänst.</p>
+    <p><strong>EJ INLÄMNAD</strong> innebär att din ungdom inte kommer.</p>
+    <p><strong>Öppettider:</strong> 09:00–17:00</p>
+    <p style="margin-top:0.5rem"><em>personalen på Smultronet</em></p>
   </div>
 
   <form id="form">
-    <label>Vårdnadshavares namn:<input type="text" id="parentName" required></label>
-    <label>Ungdomens namn:<input type="text" id="youthName" required></label>
-    <label>Vårdnadshavares e-post:<input type="email" id="parentEmail" required></label>
-
+    <label>Vårdnadshavares namn:
+      <input type="text" id="parentName" required>
+    </label>
+    <label>Ungdomens namn:
+      <input type="text" id="youthName" required>
+    </label>
+    <label>Vårdnadshavares e-post:
+      <input type="email" id="parentEmail" required>
+    </label>
     <label>Övriga kommentarer:
-      <textarea id="kommentar" rows="4"></textarea>
+      <textarea id="kommentar" rows="3"></textarea>
     </label>
 
     <div class="controls">
-      <button type="button" id="selectAllYes">Kommer alla dagar</button>
-      <button type="button" id="selectAllNo">Kommer ingen dag</button>
-      <div><label>Från alla:<input type="time" id="globalFrom" value="09:00"></label></div>
-      <div><label>Till alla:<input type="time" id="globalTo" value="17:00"></label></div>
-      <button type="button" id="applyTimes">Tilldela tider</button>
+      <button type="button" id="selectAllYes">Kommer alla</button>
+      <button type="button" id="selectAllNo">Kommer ej</button>
+      <input type="time" id="globalFrom" value="09:00">
+      <input type="time" id="globalTo"   value="17:00">
+      <button type="button" id="applyTimes">Tider →</button>
     </div>
 
     <div class="calendar-grid" id="calendarGrid"></div>
@@ -104,7 +208,7 @@
 
   <p id="status"></p>
 
-  <!-- Popup och overlay -->
+  <!-- Popup -->
   <div id="overlay"></div>
   <div id="summary-box">
     <button id="close-summary">×</button>
@@ -114,155 +218,78 @@
 
   <script>
     async function loadCalendar() {
-      const snapshot = await firebase.firestore().collection("kalender").orderBy("date").get();
+      const snap = await firebase.firestore().collection("kalender").orderBy("date").get();
       const grid = document.getElementById("calendarGrid"); grid.innerHTML = "";
-      snapshot.forEach(doc => {
-        const { date, note, color, closed } = doc.data();
-        const card = document.createElement("div"); card.className = "day-card";
-        if (color) card.style.background = color;
-        if (closed) card.setAttribute("data-closed","");
-
-        if (closed) {
-          card.innerHTML = `<div class="day-header">${date}</div><div class="note">${note}</div>`;
+      snap.forEach(doc => {
+        const {date,note,color,closed} = doc.data();
+        const card = document.createElement("div"); card.className="day-card";
+        if(color) card.style.background=color;
+        if(closed) card.setAttribute("data-closed","");
+        if(closed) {
+          card.innerHTML=`<div class="day-header">${date}</div><div class="note">${note}</div>`;
         } else {
-          card.innerHTML = `
+          card.innerHTML=`
             <div class="day-header">${date}</div>
             <div class="note">${note}</div>
             <div class="toggles">
-              <button type="button" class="btn-yes">Kommer</button>
-              <button type="button" class="btn-no">Kommer ej</button>
+              <button class="btn-yes">Kommer</button>
+              <button class="btn-no">Kommer ej</button>
             </div>
             <div class="time-inputs">
-              <input type="time" value="09:00" class="from">
-              <input type="time" value="17:00" class="to">
+              <input class="from" type="time" value="09:00">
+              <input class="to"   type="time" value="17:00">
             </div>`;
-          const yes = card.querySelector(".btn-yes"), no = card.querySelector(".btn-no");
-          const times = card.querySelector(".time-inputs");
-          yes.addEventListener("click",()=>{ yes.classList.add("active"); no.classList.remove("active"); times.style.display="flex"; });
-          no.addEventListener("click",()=>{ no.classList.add("active"); yes.classList.remove("active"); times.style.display="none"; });
-          yes.dataset.date = no.dataset.date = times.dataset.date = date;
+          const yes=card.querySelector(".btn-yes"), no=card.querySelector(".btn-no"), times=card.querySelector(".time-inputs");
+          yes.addEventListener("click",()=>{yes.classList.add("active");no.classList.remove("active");times.style.display="flex";});
+          no.addEventListener("click",()=>{no.classList.add("active");yes.classList.remove("active");times.style.display="none";});
+          yes.dataset.date=no.dataset.date=times.dataset.date=date;
         }
         grid.appendChild(card);
       });
     }
     window.addEventListener("load", loadCalendar);
 
-    document.getElementById("selectAllYes").addEventListener("click",()=>document.querySelectorAll(".btn-yes").forEach(b=>b.click()));
-    document.getElementById("selectAllNo").addEventListener("click",()=>document.querySelectorAll(".btn-no").forEach(b=>b.click()));
-    document.getElementById("applyTimes").addEventListener("click",()=>{
-      const from=document.getElementById("globalFrom").value, to=document.getElementById("globalTo").value;
+    document.getElementById("selectAllYes").onclick = ()=>document.querySelectorAll(".btn-yes").forEach(b=>b.click());
+    document.getElementById("selectAllNo"). onclick = ()=>document.querySelectorAll(".btn-no"). forEach(b=>b.click());
+    document.getElementById("applyTimes").onclick=()=>{
+      const from=document.getElementById("globalFrom").value;
+      const to  =document.getElementById("globalTo").value;
       document.querySelectorAll(".from").forEach(i=>i.value=from);
-      document.querySelectorAll(".to").forEach(i=>i.value=to);
-    });
+      document.querySelectorAll(".to").  forEach(i=>i.value=to);
+    };
 
     document.getElementById("form").addEventListener("submit",async e=>{
       e.preventDefault();
-      const parentName=document.getElementById("parentName").value;
-      const youthName=document.getElementById("youthName").value;
-      const parentEmail=document.getElementById("parentEmail").value;
-      const kommentar=document.getElementById("kommentar").value;
-      const svar=Array.from(document.querySelectorAll(".day-card")).map(card=>({
-        date:card.querySelector(".btn-yes")?.dataset.date,
-        kommer:card.querySelector(".btn-yes")?.classList.contains("active"),
-        ejkommer:card.querySelector(".btn-no")?.classList.contains("active"),
-        from:card.querySelector(".from")?.value,
-        to:card.querySelector(".to")?.value
+      const pn=document.getElementById("parentName").value;
+      const yn=document.getElementById("youthName").value;
+      const pe=document.getElementById("parentEmail").value;
+      const km=document.getElementById("kommentar").value;
+      const svar=Array.from(document.querySelectorAll(".day-card")).map(c=>({
+        date:c.querySelector(".btn-yes")?.dataset.date,
+        kommer:c.querySelector(".btn-yes")?.classList.contains("active"),
+        ejkommer:c.querySelector(".btn-no")?.classList.contains("active"),
+        from:c.querySelector(".from")?.value,
+        to:c.querySelector(".to")?.value
       }));
-
-      await firebase.firestore().collection("narvaro").add({
-        parentName,youthName,parentEmail,kommentar,svar,
-        tidpunkt:firebase.firestore.Timestamp.now()
-      });
-
-      let summary=`Ungdom: ${youthName}\n\n`+svar.map(s=>
-        `${s.date}: ${s.kommer?"Kommer":s.ejkommer?"Kommer ej":"Osäker"}, från kl ${s.from} till kl ${s.to}`
-      ).join("\n");
-      if(kommentar.trim()) summary+=`\n\nKommentar: ${kommentar}`;
-
-      const ok=await skickaBekraftelse(parentName,parentEmail,youthName,summary,kommentar);
-      document.getElementById("status").textContent=ok?"✅ Tack! Din anmälan är inskickad.":"⚠️ Ett fel uppstod vid e-postutskick.";
-
+      await firebase.firestore().collection("narvaro").add({pn,yn,pe,km,svar,tidpunkt:firebase.firestore.Timestamp.now()});
+      let sum=`Ungdom: ${yn}\n\n`+svar.map(s=>`${s.date}: ${s.kommer?"Kommer":s.ejkommer?"Kommer ej":"Osäker"}, från kl ${s.from} till kl ${s.to}`).join("\n");
+      if(km.trim()) sum+=`\n\nKommentar: ${km}`;
+      const ok=await skickaBekraftelse(pn,pe,yn,sum,km);
+      document.getElementById("status").textContent=ok?"✅ Tack! Din anmälan är inskickad.":"⚠️ Fel vid e-post!";
       if(ok){
-        document.getElementById("summary-content").textContent=summary;
+        document.getElementById("summary-content").textContent=sum;
         document.getElementById("overlay").style.display="block";
         document.getElementById("summary-box").style.display="block";
         document.body.style.overflow="hidden";
         document.getElementById("close-summary").onclick=()=>{
-          document.getElementById("summary-box").style.display="none";
           document.getElementById("overlay").style.display="none";
+          document.getElementById("summary-box").style.display="none";
           document.body.style.overflow="";
         };
         e.target.reset();
       }
     });
   </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('✅ Service Worker registrerad'))
-      .catch(console.error);
-  }
-</script>
-  <script>
-  let deferredPrompt;
 
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Förhindra att Chrome visar standard-banner direkt
-    e.preventDefault();
-    deferredPrompt = e;
-
-    // Visa din egen knapp/banner
-    const installBtn = document.createElement('button');
-    installBtn.textContent = 'Ladda ner appen';
-    installBtn.style.position = 'fixed';
-    installBtn.style.bottom = '1rem';
-    installBtn.style.left = '50%';
-    installBtn.style.transform = 'translateX(-50%)';
-    installBtn.style.padding = '0.8rem 1.2rem';
-    installBtn.style.background = '#0055a5';
-    installBtn.style.color = 'white';
-    installBtn.style.border = 'none';
-    installBtn.style.borderRadius = '4px';
-    document.body.appendChild(installBtn);
-
-    installBtn.addEventListener('click', async () => {
-      // Visa den inbyggda prompten
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        console.log('Appen installerad');
-      } else {
-        console.log('App-installation avböjd');
-      }
-      // Dölja din egen knapp
-      installBtn.remove();
-      deferredPrompt = null;
-    });
-  });
-</script>
-  <script>
-  // Enkelt test för iOS Safari
-  const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-  const isInStandalone = ('standalone' in window.navigator) && window.navigator.standalone;
-
-  if (isIos && !isInStandalone) {
-    const iosBanner = document.createElement('div');
-    iosBanner.innerHTML = `
-      <div style="
-        position:fixed;bottom:0;left:0;right:0;
-        background:#0055a5;color:white;
-        padding:1rem;text-align:center;
-        font-size:0.9rem;
-      ">
-        Tryck på <strong>Dela</strong> och sen <strong>Lägg till på hemskärmen</strong> för att installera appen.
-        <button id="closeIosBanner" style="
-          margin-left:1rem;
-          background:transparent;border:none;color:white;font-size:1.2rem;
-        ">×</button>
-      </div>`;
-    document.body.appendChild(iosBanner);
-    document.getElementById('closeIosBanner').onclick = () => iosBanner.remove();
-  }
-</script>
 </body>
 </html>
