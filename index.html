@@ -301,6 +301,21 @@
     <h2>Din sammanfattning</h2>
     <pre id="summary-content"></pre>
   </div>
+<!-- Install‐knapp -->
+<button id="btnInstall" style="
+  display: none;
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--blue-2);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  z-index: 1000;
+">Ladda ner appen</button>
 
   <script>
     async function loadCalendar() {
@@ -399,5 +414,31 @@
       }
     });
   </script>
+  <script>
+  let deferredPrompt;
+  const installBtn = document.getElementById('btnInstall');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Förhindra standard‐prompt
+    e.preventDefault();
+    deferredPrompt = e;
+    // Visa knapp
+    installBtn.style.display = 'block';
+  });
+
+  installBtn.addEventListener('click', async () => {
+    // Dölj egen knapp
+    installBtn.style.display = 'none';
+    // Visa Chrome-dialogen
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    if (choice.outcome === 'accepted') {
+      console.log('App installerad');
+    } else {
+      console.log('Installation avböjd');
+    }
+    deferredPrompt = null;
+  });
+</script>
 </body>
 </html>
