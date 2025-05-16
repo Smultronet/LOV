@@ -240,5 +240,29 @@
     });
   });
 </script>
+  <script>
+  // Enkelt test för iOS Safari
+  const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  const isInStandalone = ('standalone' in window.navigator) && window.navigator.standalone;
+
+  if (isIos && !isInStandalone) {
+    const iosBanner = document.createElement('div');
+    iosBanner.innerHTML = `
+      <div style="
+        position:fixed;bottom:0;left:0;right:0;
+        background:#0055a5;color:white;
+        padding:1rem;text-align:center;
+        font-size:0.9rem;
+      ">
+        Tryck på <strong>Dela</strong> och sen <strong>Lägg till på hemskärmen</strong> för att installera appen.
+        <button id="closeIosBanner" style="
+          margin-left:1rem;
+          background:transparent;border:none;color:white;font-size:1.2rem;
+        ">×</button>
+      </div>`;
+    document.body.appendChild(iosBanner);
+    document.getElementById('closeIosBanner').onclick = () => iosBanner.remove();
+  }
+</script>
 </body>
 </html>
