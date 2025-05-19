@@ -188,7 +188,7 @@
       await firebase.firestore().collection("narvaro").add({parentName,youthName,parentEmail,kommentar,svar,tidpunkt:firebase.firestore.Timestamp.now()});
       let summary=`Ungdom: ${youthName}\n\n`+svar.map(s=>`${s.date}: ${s.kommer?"Kommer":s.ejkommer?"Kommer ej":"Osäker"}, från kl ${s.from} till kl ${s.to}`).join("\n");
       if(kommentar.trim()) summary+=`\n\nKommentar: ${kommentar}`;
-      const ok=await skickaBekraftelse(parentName,parentEmail,youthName,summary,kommentar);
+      const ok=await skickaBekräftelse(parentName,parentEmail,youthName,summary,kommentar);
       document.getElementById("status").textContent = ok?"✅ Tack! Din anmälan är inskickad.":"⚠️ Fel vid e-post!";
       if(ok){
         document.getElementById("summary-content").textContent=summary;
