@@ -1,290 +1,278 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kontrollrond Smultronet & Electric</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Höstlov 2025 – Närvaroanmälan</title>
+
+  <!-- PWA-manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#005AA5">
+
+  <!-- Firebase + EmailJS -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>window.onload = () => emailjs.init("64vIY_pmg15yG6lYv");</script>
+  <script src="email.js"></script>
+
   <style>
-    body { font-family: Arial, sans-serif; max-width:900px; margin:20px auto; padding:0 15px; color:#333; }
-    h1 { color:#005ea6; margin-bottom:10px; }
-    .tab { display:flex; border-bottom:2px solid #005ea6; margin-bottom:20px; }
-    .tab button { flex:1; background:none; border:none; padding:12px; cursor:pointer; color:#005ea6; border-bottom:3px solid transparent; font-size:16px; transition:.3s; }
-    .tab button.active { border-bottom-color:#005ea6; font-weight:bold; }
-    .tabcontent { display:none; }
-    .tabcontent.active { display:block; }
-    .control-point { border:1px solid #ccc; padding:10px; margin:10px 0; border-radius:4px; }
-    .control-point label { font-weight:bold; display:block; }
-    .link-button { background:none; border:none; color:#005ea6; text-decoration:underline; cursor:pointer; font-size:.9em; margin-left:8px; }
-    .instructions { display:none; background:#eef7ff; padding:8px; margin-top:6px; border-left:4px solid #005ea6; white-space:pre-wrap; }
-    .cause-text { display:none; width:100%; margin-top:6px; padding:6px; border:1px solid #ccc; border-radius:4px; }
-    .btn { margin:12px 0; padding:10px 16px; background:#005ea6; color:#fff; border:none; border-radius:4px; cursor:pointer; }
-    .btn:hover { background:#004080; }
-    input, textarea { width:100%; padding:6px; margin-top:4px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:14px; }
-    .message { margin-top:10px; font-weight:bold; }
-  </style>
+    :root {
+      --blue-1: #005AA5; --blue-2: #0072C6; --blue-3: #0094DA;
+      --gray-1: #F5F5F5; --gray-2: #E0E0E0; --orange: #FFA726;
+      --text: #333333;
+    }
+    *,*::before,*::after {box-sizing:border-box;margin:0;padding:0;}
+    body {font-family:"Source Sans Pro",Arial,sans-serif;background:var(--gray-1);color:var(--text);line-height:1.5;}
+    header {background:var(--blue-1);color:#fff;padding:1rem;display:flex;align-items:center;gap:0.75rem;}
+    header img {height:40px;}
+    header h1 {font-size:1.25rem;margin:0;}
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-storage-compat.js"></script>
-
-  <!-- EmailJS SDK v4 -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
-  <script>
-    // Din Firebase-konfiguration
-    const firebaseConfig = {
-      apiKey: "AIzaSyA5NbkUdeOVlAeKO6LR_VgHMUqp2y0aNR8",
-      authDomain: "brandrond-5728a.firebaseapp.com",
-      projectId: "brandrond-5728a",
-      storageBucket: "brandrond-5728a.firebasestorage.app",
-      messagingSenderId: "792404228664",
-      appId: "1:792404228664:web:158f19bb1114b4e9c044cd",
-      measurementId: "G-RSFY1G6HFN"
-    };
-    // Initiera Firebase
-    firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
-
-    // Initiera EmailJS
-    emailjs.init({ publicKey: '64vIY_pmg15yG6lYv' });
-  </script>
-</head>
-<body>
-
-  <h1>Kontrollrond</h1>
-  <div class="tab">
-    <button class="tablinks active" onclick="openTab(event,'Smultronet')">Smultronet</button>
-    <button class="tablinks" onclick="openTab(event,'Electric')">Electric</button>
-  </div>
-
-  <!-- Smultronet-flik -->
-  <div id="Smultronet" class="tabcontent active">
-    <form id="formSmultronet">
-      <label>Datum:</label>
-      <input type="date" name="date" required />
-      <button type="button" class="btn" id="approve_Smultronet">Godkänn alla</button>
-      <div id="list_Smultronet"></div>
-      <label>Signatur (namn):</label>
-      <input type="text" name="signature" placeholder="Ditt namn" required />
-      <button type="submit" class="btn">Skicka in</button>
-      <div class="message" id="msg_Smultronet"></div>
-    </form>
-  </div>
-
-  <!-- Electric-flik -->
-  <div id="Electric" class="tabcontent">
-    <form id="formElectric">
-      <label>Datum:</label>
-      <input type="date" name="date" required />
-      <button type="button" class="btn" id="approve_Electric">Godkänn alla</button>
-      <div id="list_Electric"></div>
-      <label>Signatur (namn):</label>
-      <input type="text" name="signature" placeholder="Ditt namn" required />
-      <button type="submit" class="btn">Skicka in</button>
-      <div class="message" id="msg_Electric"></div>
-    </form>
-  </div>
-
-  <script>
-    function openTab(evt, name) {
-      document.querySelectorAll('.tabcontent').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('.tablinks').forEach(b => b.classList.remove('active'));
-      document.getElementById(name).classList.add('active');
-      evt.currentTarget.classList.add('active');
+    /* Install-banner */
+    #install-banner {
+      display:none;
+      background:#e6f0fa;
+      color:#003366;
+      padding:0.75rem 1rem;
+      font-size:0.9rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    #install-banner button {
+      background:var(--blue-2);
+      color:#fff;
+      border:none;
+      padding:0.4rem 0.8rem;
+      font-size:0.85rem;
+      border-radius:4px;
+      cursor:pointer;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const questions = [
-        {id:1, namn:"Utrymningsplan", instruktion:
-`Syfte
-Visa utrymningsvägar, larmning och släckutrustning.
+    .info-box {background:#fff;border-left:4px solid var(--orange);margin:1rem;padding:1rem;border-radius:4px;font-size:0.9rem;}
+    .info-box h2 {color:var(--blue-1);font-size:1rem;margin-bottom:0.5rem;}
 
-Provningsintervall
-Var tredje månad.
+    form {background:#fff;margin:1rem;padding:1rem;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+    form label {display:block;margin-top:0.75rem;font-size:0.9rem;}
+    form input, form textarea {width:100%;padding:0.6rem;margin-top:0.25rem;border:1px solid #ccc;border-radius:4px;font-size:0.9rem;}
 
-Resultat
-Kontrollera att planen stämmer.`},
-        {id:2, namn:"Handbrandsläckare", instruktion:
-`Syfte
-Släckning av mindre brand.
+    .controls {display:flex;flex-wrap:wrap;gap:0.5rem;margin:1rem 0;}
+    .controls button, .controls input[type="time"] {
+      flex:1 1 45%;padding:0.6rem;font-size:0.9rem;border-radius:4px;
+    }
+    .controls button {
+      background:var(--blue-2);color:#fff;border:none;
+    }
+    .controls button:hover {background:var(--blue-3);}
 
-Provningsintervall
-Var tredje månad.
+    .calendar-grid {display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;}
+    .day-card {background:#fff;border:1px solid var(--gray-2);border-radius:4px;padding:0.75rem;display:flex;flex-direction:column;justify-content:space-between;min-height:120px;}
+    .day-card[data-closed] {background:var(--gray-2);color:#a94442;}
+    .day-header {font-weight:600;font-size:0.9rem;color:var(--blue-1);}
+    .note {font-size:0.85rem;margin:0.5rem 0;flex:1;}
 
-Resultat
-1. Kontrollera placering och skylt.
-2. Kontrollera manometer (grönt).
-3. Kontrollera provmärkning.
-4. Kontrollera åtkomlighet.`},
-        {id:3, namn:"Ordning och reda vid utrymningsvägar", instruktion:
-`Syfte
-Minska brandrisk.
+    .toggles {display:flex;gap:0.25rem;}
+    .toggles button {flex:1;padding:0.4rem;font-size:0.85rem;border:1px solid var(--gray-2);background:var(--gray-1);border-radius:3px;}
+    .toggles button.active {background:var(--blue-3);border-color:var(--blue-3);color:#fff;}
 
-Provningsintervall
-Var tredje månad.
+    .time-inputs {display:none;flex-direction:column;gap:0.25rem;margin-top:0.5rem;}
+    .time-inputs input {font-size:0.85rem;}
 
-Resultat
-Ta bort brännbart material från utrymningsvägar, trapphus, spisar, entré och värmekällor.`},
-        {id:4, namn:"Skyltar för utrymning", instruktion:
-`Syfte
-Visa bästa utrymningsväg.
+    button[type="submit"] {
+      width:100%;background:var(--blue-2);color:#fff;padding:0.75rem;font-size:1rem;border:none;border-radius:4px;
+    }
+    button[type="submit"]:hover {background:var(--blue-3);}
 
-Provningsintervall
-Var tredje månad.
+    #status {text-align:center;margin:1rem;font-weight:600;}
+    #overlay {display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);}
+    #summary-box {display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:1rem;border-radius:4px;width:90%;max-width:320px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+    #summary-box h2 {margin-bottom:0.5rem;color:var(--blue-2);font-size:1rem;}
+    #summary-box button#close-summary {position:absolute;top:0.5rem;right:0.5rem;background:transparent;border:none;font-size:1.2rem;cursor:pointer;}
+    #summary-box pre {font-size:0.85rem;white-space:pre-wrap;}
+    @media (min-width:600px) {
+      .calendar-grid {grid-template-columns:repeat(3,1fr);}
+      .controls {gap:1rem;}
+      .controls button, .controls input[type="time"] {flex:1;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="stockholm-logo.png" alt="Stockholms stad logotyp">
+    <h1>Höstlov 2025 – Närvaroanmälan</h1>
+  </header>
 
-Resultat
-1. Kontrollera synlighet.
-2. Kontrollera funktion.`},
-        {id:5, namn:"Brandvarnare", instruktion:
-`Syfte
-Tidigt larm vid brand.
+  <!-- Install-banner -->
+  <div id="install-banner">
+    <div id="install-text">📲 Installera appen för enklare åtkomst</div>
+    <button id="btnInstall">Lägg till</button>
+  </div>
 
-Provningsintervall
-En gång i månaden eller vid pip.
+  <div class="info-box">
+    <h2>Välkommen!</h2>
+    <p><strong>Snart är höstlovet här</strong> och för vår planering behöver vi veta vilka ungdomar som kommer till Smultronet.</p>
+    <p>Vi kommer att ha många <strong>uteaktiviteter</strong> under lovet – ta med lämpliga kläder!</p>
+    <p><strong>Taxi:</strong> Kontakta skolan för att boka om färdtjänst.</p>
+    <p><strong>EJ INLÄMNAD</strong> innebär att din ungdom inte kommer.</p>
+    <p><strong>Öppettider:</strong> 09:00–17:00</p>
+    <p style="margin-top:0.5rem"><em>personalen på Smultronet</em></p>
+  </div>
 
-Resultat
-1. Byt batterier.
-2. Testa larmknapp.`},
-        {id:6, namn:"Första hjälpen", instruktion:
-`Syfte
-Första vårdinsats vid olycksfall.
+  <form id="form">
+    <label>Vårdnadshavares namn:<input type="text" id="parentName" required></label>
+    <label>Ungdomens namn:<input type="text" id="youthName" required></label>
+    <label>Vårdnadshavares e-post:<input type="email" id="parentEmail" required></label>
+    <label>Övriga kommentarer:<textarea id="kommentar" rows="3"></textarea></label>
 
-Provningsintervall
-Var tredje månad.
+    <div class="controls">
+      <button type="button" id="selectAllYes">Kommer alla</button>
+      <button type="button" id="selectAllNo">Kommer ej</button>
+      <input type="time" id="globalFrom" value="09:00">
+      <input type="time" id="globalTo"   value="17:00">
+      <button type="button" id="applyTimes">Tider →</button>
+    </div>
 
-Resultat
-Kontrollera innehåll i förbandslåda.`},
-        {id:7, namn:"Brandfiltar", instruktion:
-`Syfte
-Kväva brand.
+    <div class="calendar-grid" id="calendarGrid"></div>
 
-Provningsintervall
-2 gånger per år.
+    <button type="submit">Skicka närvaro</button>
+  </form>
 
-Resultat
-Kontrollera att filtar är på plats och i gott skick.`},
-        {id:8, namn:"Akutpärm", instruktion:
-`Syfte
-Snabb kontakt med föräldrar vid utrymning.
+  <p id="status"></p>
 
-Provningsintervall
-2 gånger per år.
+  <div id="overlay"></div>
+  <div id="summary-box">
+    <button id="close-summary">×</button>
+    <h2>Din sammanfattning</h2>
+    <pre id="summary-content"></pre>
+  </div>
 
-Resultat
-Kontrollera namn och telefonnummer.`},
-        {id:9, namn:"Elutrustning/värmekällor", instruktion:
-`Syfte
-Förebygga brandrisk kring elutrustning.
+  <script>
+    let isSending = false;
 
-Provningsintervall
-Löpande.
+    async function loadCalendar() {
+      const snap = await firebase.firestore().collection("kalender").orderBy("date").get();
+      const grid = document.getElementById("calendarGrid"); grid.innerHTML = "";
+      snap.forEach(doc => {
+        const {date,note,color,closed} = doc.data();
+        const card = document.createElement("div"); card.className="day-card";
+        if(color) card.style.background = color;
+        if(closed) card.setAttribute("data-closed","");
+        if(closed) {
+          card.innerHTML = `<div class="day-header">${date}</div><div class="note">${note}</div>`;
+        } else {
+          card.innerHTML = `
+            <div class="day-header">${date}</div>
+            <div class="note">${note}</div>
+            <div class="toggles">
+              <button class="btn-yes">Kommer</button>
+              <button class="btn-no">Kommer ej</button>
+            </div>
+            <div class="time-inputs">
+              <input class="from" type="time" value="09:00">
+              <input class="to"   type="time" value="17:00">
+            </div>`;
+          const yes = card.querySelector(".btn-yes"),
+                no  = card.querySelector(".btn-no"),
+                times = card.querySelector(".time-inputs");
+          yes.addEventListener("click", ()=>{ yes.classList.add("active"); no.classList.remove("active"); times.style.display="flex"; });
+          no.addEventListener("click", ()=>{ no.classList.add("active"); yes.classList.remove("active"); times.style.display="none"; });
+          yes.dataset.date = no.dataset.date = times.dataset.date = date;
+        }
+        grid.appendChild(card);
+      });
+    }
+    window.addEventListener("load", loadCalendar);
 
-Resultat
-Kontrollera att ingen elutrustning är övertäckt.`}
-      ];
+    document.getElementById("selectAllYes").onclick = ()=>document.querySelectorAll(".btn-yes").forEach(b=>b.click());
+    document.getElementById("selectAllNo").onclick = ()=>document.querySelectorAll(".btn-no").forEach(b=>b.click());
+    document.getElementById("applyTimes").onclick = ()=>{
+      const from = document.getElementById("globalFrom").value, to = document.getElementById("globalTo").value;
+      document.querySelectorAll(".from").forEach(i=>i.value=from);
+      document.querySelectorAll(".to").forEach(i=>i.value=to);
+    };
 
-      function render(listId) {
-        const c = document.getElementById(listId);
-        c.innerHTML = '';
-        questions.forEach(q => {
-          const cp = document.createElement('div'); cp.className='control-point';
-          const lbl = document.createElement('label'); lbl.textContent = q.namn;
-          const ib = document.createElement('button'); ib.type='button'; ib.className='link-button'; ib.textContent='Instruktion';
-          ib.onclick = () => ins.style.display = ins.style.display==='block' ? 'none' : 'block';
-          lbl.appendChild(ib); cp.appendChild(lbl);
-          ['godkand','ej_godkand'].forEach(val => {
-            const r = document.createElement('input');
-            r.type='radio'; r.name=`status_${listId}_${q.id}`; r.value=val;
-            if(val==='godkand') r.required=true;
-            const rl = document.createElement('label'); rl.style.fontWeight='normal'; rl.appendChild(r);
-            rl.appendChild(document.createTextNode(val==='godkand'?' Godkänd':' Ej godkänd'));
-            cp.appendChild(rl);
-          });
-          const ta = document.createElement('textarea'); ta.className='cause-text'; ta.placeholder='Ange orsak...'; cp.appendChild(ta);
-          cp.querySelectorAll('input[type=radio]').forEach(radio => {
-            radio.onchange = e => {
-              if(e.target.value==='ej_godkand'){ ta.style.display='block'; ta.required=true }
-              else { ta.style.display='none'; ta.required=false; ta.value='' }
-            };
-          });
-          const ins = document.createElement('div'); ins.className='instructions'; ins.textContent=q.instruktion; cp.appendChild(ins);
-          c.appendChild(cp);
-        });
+    document.getElementById("form").addEventListener("submit", async e=>{
+      e.preventDefault();
+      if (isSending) return;
+      isSending = true;
+
+      const parentName  = document.getElementById("parentName").value;
+      const youthName   = document.getElementById("youthName").value;
+      const parentEmail = document.getElementById("parentEmail").value;
+      const kommentar   = document.getElementById("kommentar").value;
+      const svar = Array.from(document.querySelectorAll(".day-card")).map(card=>({
+        date:card.querySelector(".btn-yes")?.dataset.date,
+        kommer:card.querySelector(".btn-yes")?.classList.contains("active"),
+        ejkommer:card.querySelector(".btn-no")?.classList.contains("active"),
+        from:card.querySelector(".from")?.value,
+        to:card.querySelector(".to")?.value
+      }));
+
+      await firebase.firestore().collection("narvaro").add({
+        parentName,youthName,parentEmail,kommentar,svar,
+        tidpunkt:firebase.firestore.Timestamp.now()
+      });
+
+      let summary = `Ungdom: ${youthName}\n\n` + svar.map(s=>
+        `${s.date}: ${s.kommer?"Kommer":s.ejkommer?"Kommer ej":"Osäker"}, från kl ${s.from} till kl ${s.to}`
+      ).join("\n");
+      if (kommentar.trim()) summary += `\n\nKommentar: ${kommentar}`;
+
+      const ok = await skickaBekräftelse(parentName, parentEmail, youthName, summary, kommentar);
+      document.getElementById("status").textContent = ok
+        ? "✅ Tack! Din anmälan är inskickad."
+        : "⚠️ Ett fel uppstod vid e-postutskick.";
+
+      if (ok) {
+        document.getElementById("summary-content").textContent = summary;
+        document.getElementById("overlay").style.display = "block";
+        document.getElementById("summary-box").style.display = "block";
+        document.body.style.overflow = "hidden";
+        document.getElementById("close-summary").onclick = ()=>{
+          document.getElementById("overlay").style.display = "none";
+          document.getElementById("summary-box").style.display = "none";
+          document.body.style.overflow = "";
+        };
+        e.target.reset();
       }
 
-      render('list_Smultronet');
-      render('list_Electric');
-
-      document.getElementById('approve_Smultronet').onclick = () => {
-        document.querySelectorAll('#list_Smultronet input[value="godkand"]').forEach(r=>r.checked=true);
-        document.querySelectorAll('#list_Smultronet .cause-text').forEach(ta=>ta.style.display='none');
-      };
-      document.getElementById('approve_Electric').onclick = () => {
-        document.querySelectorAll('#list_Electric input[value="godkand"]').forEach(r=>r.checked=true);
-        document.querySelectorAll('#list_Electric .cause-text').forEach(ta=>ta.style.display='none');
-      };
-
-      const today = new Date().toISOString().slice(0,10);
-      document.querySelectorAll('input[type="date"]').forEach(i=>i.value = today);
-
-      ['Smultronet','Electric'].forEach(tab => {
-        const form = document.getElementById('form'+tab);
-        const msg  = document.getElementById('msg_'+tab);
-
-        form.addEventListener('submit', async e => {
-          e.preventDefault();
-          msg.textContent=''; msg.style.color='black';
-
-          const fd = new FormData(form);
-          const date = fd.get('date');
-          const sig  = fd.get('signature').trim();
-          if(!date||!sig){
-            msg.style.color='red'; msg.textContent='Datum och signatur krävs.'; return;
-          }
-
-          // Bygg CSV
-          let csv = 'Flik;Fråga;Status;Orsak\n';
-          const cps = document.getElementById('list_'+tab).querySelectorAll('.control-point');
-          for(const cp of cps){
-            const qtxt = cp.querySelector('label').childNodes[0].textContent;
-            const ch   = cp.querySelector('input[type=radio]:checked');
-            const status = ch.value==='godkand'?'Godkänd':'Ej godkänd';
-            let cause = '';
-            if(ch.value==='ej_godkand') cause = cp.querySelector('textarea').value.trim();
-            csv += `${tab};${qtxt};${status};${cause}\n`;
-          }
-
-          // Ladda upp CSV till Firebase Storage
-          try {
-            const blob = new Blob([csv],{type:'text/csv'});
-            const filename = `rapport_${tab}_${Date.now()}.csv`;
-            const ref = storage.ref().child(filename);
-            await ref.put(blob);
-
-            // Hämta nedladdningslänk
-            const downloadUrl = await ref.getDownloadURL();
-
-            // Skicka mejl med länk
-            await emailjs.send('service_1n11tf8','template_jhx4rrr',{
-              date: date,
-              signature: sig,
-              downloadUrl: downloadUrl
-            });
-
-            msg.style.color='green';
-            msg.textContent='Skickat! Rapporten nås här: ' + downloadUrl;
-            form.reset();
-            document.querySelectorAll('input[type="date"]').forEach(i=>i.value = today);
-            render('list_'+tab);
-
-          } catch(err){
-            console.error(err);
-            msg.style.color='red';
-            msg.textContent='Fel: ' + err.message;
-          }
-        });
-      });
+      isSending = false;
     });
+
+    // Dynamisk PWA-banner
+    function isStandalone(){
+      return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+    }
+    function isIOS(){ return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()); }
+    function isAndroid(){ return /android/.test(navigator.userAgent.toLowerCase()); }
+
+    let deferredPrompt;
+    const banner = document.getElementById('install-banner');
+    const installBtn = document.getElementById('btnInstall');
+    const installText= document.getElementById('install-text');
+
+    if (!isStandalone()){
+      window.addEventListener('beforeinstallprompt', e=>{
+        e.preventDefault();
+        deferredPrompt = e;
+        if (isAndroid()){
+          banner.style.display='flex';
+          installBtn.style.display='inline-block';
+        }
+      });
+      installBtn.addEventListener('click', async ()=>{
+        banner.style.display='none';
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt=null;
+      });
+      if (isIOS()){
+        banner.style.display='flex';
+        installText.innerHTML=`📱 För iPhone/iPad: Tryck på <strong>🔼 Dela</strong> → <strong>Lägg till på hemskärmen</strong>`;
+        installBtn.style.display='none';
+      }
+    }
   </script>
 </body>
 </html>
