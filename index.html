@@ -23,11 +23,12 @@
       --gray-1: #F5F5F5; --gray-2: #E0E0E0; --orange: #FFA726;
       --text: #333333;
     }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    *,*::before,*::after {box-sizing:border-box;margin:0;padding:0;}
     body {font-family:"Source Sans Pro",Arial,sans-serif;background:var(--gray-1);color:var(--text);line-height:1.5;}
     header {background:var(--blue-1);color:#fff;padding:1rem;display:flex;align-items:center;gap:0.75rem;}
     header img {height:40px;}
     header h1 {font-size:1.25rem;margin:0;}
+
     /* Install-banner */
     #install-banner {
       display:none;
@@ -48,27 +49,41 @@
       border-radius:4px;
       cursor:pointer;
     }
+
     .info-box {background:#fff;border-left:4px solid var(--orange);margin:1rem;padding:1rem;border-radius:4px;font-size:0.9rem;}
     .info-box h2 {color:var(--blue-1);font-size:1rem;margin-bottom:0.5rem;}
+
     form {background:#fff;margin:1rem;padding:1rem;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
     form label {display:block;margin-top:0.75rem;font-size:0.9rem;}
     form input, form textarea {width:100%;padding:0.6rem;margin-top:0.25rem;border:1px solid #ccc;border-radius:4px;font-size:0.9rem;}
+
     .controls {display:flex;flex-wrap:wrap;gap:0.5rem;margin:1rem 0;}
-    .controls button, .controls input[type="time"] {flex:1 1 45%;padding:0.6rem;font-size:0.9rem;border-radius:4px;}
-    .controls button {background:var(--blue-2);color:#fff;border:none;}
+    .controls button, .controls input[type="time"] {
+      flex:1 1 45%;padding:0.6rem;font-size:0.9rem;border-radius:4px;
+    }
+    .controls button {
+      background:var(--blue-2);color:#fff;border:none;
+    }
     .controls button:hover {background:var(--blue-3);}
+
     .calendar-grid {display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;}
     .day-card {background:#fff;border:1px solid var(--gray-2);border-radius:4px;padding:0.75rem;display:flex;flex-direction:column;justify-content:space-between;min-height:120px;}
     .day-card[data-closed] {background:var(--gray-2);color:#a94442;}
     .day-header {font-weight:600;font-size:0.9rem;color:var(--blue-1);}
     .note {font-size:0.85rem;margin:0.5rem 0;flex:1;}
+
     .toggles {display:flex;gap:0.25rem;}
     .toggles button {flex:1;padding:0.4rem;font-size:0.85rem;border:1px solid var(--gray-2);background:var(--gray-1);border-radius:3px;}
     .toggles button.active {background:var(--blue-3);border-color:var(--blue-3);color:#fff;}
+
     .time-inputs {display:none;flex-direction:column;gap:0.25rem;margin-top:0.5rem;}
     .time-inputs input {font-size:0.85rem;}
-    button[type="submit"] {width:100%;background:var(--blue-2);color:#fff;padding:0.75rem;font-size:1rem;border:none;border-radius:4px;}
+
+    button[type="submit"] {
+      width:100%;background:var(--blue-2);color:#fff;padding:0.75rem;font-size:1rem;border:none;border-radius:4px;
+    }
     button[type="submit"]:hover {background:var(--blue-3);}
+
     #status {text-align:center;margin:1rem;font-weight:600;}
     #overlay {display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);}
     #summary-box {display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:1rem;border-radius:4px;width:90%;max-width:320px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
@@ -88,7 +103,7 @@
     <h1>Höstlov 2025 – Närvaroanmälan</h1>
   </header>
 
-  <!-- Banner för att installera som app -->
+  <!-- Install-banner -->
   <div id="install-banner">
     <div id="install-text">📲 Installera appen för enklare åtkomst</div>
     <button id="btnInstall">Lägg till</button>
@@ -109,14 +124,17 @@
     <label>Ungdomens namn:<input type="text" id="youthName" required></label>
     <label>Vårdnadshavares e-post:<input type="email" id="parentEmail" required></label>
     <label>Övriga kommentarer:<textarea id="kommentar" rows="3"></textarea></label>
+
     <div class="controls">
       <button type="button" id="selectAllYes">Kommer alla</button>
       <button type="button" id="selectAllNo">Kommer ej</button>
       <input type="time" id="globalFrom" value="09:00">
-      <input type="time" id="globalTo" value="17:00">
+      <input type="time" id="globalTo"   value="17:00">
       <button type="button" id="applyTimes">Tider →</button>
     </div>
+
     <div class="calendar-grid" id="calendarGrid"></div>
+
     <button type="submit">Skicka närvaro</button>
   </form>
 
@@ -130,6 +148,8 @@
   </div>
 
   <script>
+    let isSending = false;
+
     async function loadCalendar() {
       const snap = await firebase.firestore().collection("kalender").orderBy("date").get();
       const grid = document.getElementById("calendarGrid"); grid.innerHTML = "";
@@ -174,34 +194,50 @@
 
     document.getElementById("form").addEventListener("submit", async e=>{
       e.preventDefault();
-      const parentName=document.getElementById("parentName").value,
-            youthName =document.getElementById("youthName").value,
-            parentEmail=document.getElementById("parentEmail").value,
-            kommentar=document.getElementById("kommentar").value;
-      const svar=Array.from(document.querySelectorAll(".day-card")).map(card=>({
+      if (isSending) return;
+      isSending = true;
+
+      const parentName  = document.getElementById("parentName").value;
+      const youthName   = document.getElementById("youthName").value;
+      const parentEmail = document.getElementById("parentEmail").value;
+      const kommentar   = document.getElementById("kommentar").value;
+      const svar = Array.from(document.querySelectorAll(".day-card")).map(card=>({
         date:card.querySelector(".btn-yes")?.dataset.date,
         kommer:card.querySelector(".btn-yes")?.classList.contains("active"),
         ejkommer:card.querySelector(".btn-no")?.classList.contains("active"),
         from:card.querySelector(".from")?.value,
         to:card.querySelector(".to")?.value
       }));
-      await firebase.firestore().collection("narvaro").add({parentName,youthName,parentEmail,kommentar,svar,tidpunkt:firebase.firestore.Timestamp.now()});
-      let summary=`Ungdom: ${youthName}\n\n`+svar.map(s=>`${s.date}: ${s.kommer?"Kommer":s.ejkommer?"Kommer ej":"Osäker"}, från kl ${s.from} till kl ${s.to}`).join("\n");
-      if(kommentar.trim()) summary+=`\n\nKommentar: ${kommentar}`;
-      const ok=await skickaBekräftelse(parentName,parentEmail,youthName,summary,kommentar);
-      document.getElementById("status").textContent = ok?"✅ Tack! Din anmälan är inskickad.":"⚠️ Fel vid e-post!";
-      if(ok){
-        document.getElementById("summary-content").textContent=summary;
-        document.getElementById("overlay").style.display="block";
-        document.getElementById("summary-box").style.display="block";
-        document.body.style.overflow="hidden";
-        document.getElementById("close-summary").onclick=()=>{
-          document.getElementById("overlay").style.display="none";
-          document.getElementById("summary-box").style.display="none";
-          document.body.style.overflow="";
+
+      await firebase.firestore().collection("narvaro").add({
+        parentName,youthName,parentEmail,kommentar,svar,
+        tidpunkt:firebase.firestore.Timestamp.now()
+      });
+
+      let summary = `Ungdom: ${youthName}\n\n` + svar.map(s=>
+        `${s.date}: ${s.kommer?"Kommer":s.ejkommer?"Kommer ej":"Osäker"}, från kl ${s.from} till kl ${s.to}`
+      ).join("\n");
+      if (kommentar.trim()) summary += `\n\nKommentar: ${kommentar}`;
+
+      const ok = await skickaBekräftelse(parentName, parentEmail, youthName, summary, kommentar);
+      document.getElementById("status").textContent = ok
+        ? "✅ Tack! Din anmälan är inskickad."
+        : "⚠️ Ett fel uppstod vid e-postutskick.";
+
+      if (ok) {
+        document.getElementById("summary-content").textContent = summary;
+        document.getElementById("overlay").style.display = "block";
+        document.getElementById("summary-box").style.display = "block";
+        document.body.style.overflow = "hidden";
+        document.getElementById("close-summary").onclick = ()=>{
+          document.getElementById("overlay").style.display = "none";
+          document.getElementById("summary-box").style.display = "none";
+          document.body.style.overflow = "";
         };
         e.target.reset();
       }
+
+      isSending = false;
     });
 
     // Dynamisk PWA-banner
