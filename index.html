@@ -81,6 +81,9 @@ button[type="submit"]:hover{background:var(--blue-3);}
 <pre id="summary-content"></pre>
 </div>
 
+<!-- Inkludera email.js här -->
+<script src="email.js"></script>
+
 <script>
 const texts = {
   sv:{welcomeTitle:"Hej!",welcomeText:"Den här enkäten hjälper oss att förbättra Smultronet. Det tar ca 3–5 minuter att svara.",
@@ -120,7 +123,8 @@ function updateLanguage(lang){
   document.getElementById("welcomeTitle").innerText=t.welcomeTitle;
   document.getElementById("welcomeText").innerText=t.welcomeText;
   ["q1","q2","q3","q4","q5"].forEach(id=>{
-    const sel=document.getElementById(id); sel.innerHTML=""; t[id+"Options"].forEach(o=>{const e=document.createElement("option");e.value=o;e.text=o; sel.add(e);});
+    const sel=document.getElementById(id); sel.innerHTML="";
+    t[id+"Options"].forEach(o=>{const e=document.createElement("option"); e.value=o; e.text=o; sel.add(e);});
   });
 }
 document.getElementById("lang").addEventListener("change",e=>updateLanguage(e.target.value));
@@ -135,9 +139,9 @@ document.getElementById("surveyForm").addEventListener("submit",async e=>{
 
   // EmailJS - svenska i mejlet
   const summary=`Förälderns namn: ${data.parent}\nBarnets namn: ${data.child}\nHur nöjd totalt: ${data.q1}\nTrygghet: ${data.q2}\nPersonal: ${data.q3}\nAktiviteter: ${data.q4}\nInformation: ${data.q5}\nVad fungerar bra: ${data.q6}\nVad kan bli bättre: ${data.q7}`;
-  await skickaBekräftelse(data.parent,data.parent, data.child, summary,data.q6+"\n"+data.q7);
+  const ok = await skickaBekräftelse(data.parent,data.parent,data.child,summary,data.q6+"\n"+data.q7);
 
-  document.getElementById("status").innerText="✅ Tack! Ditt svar är inskickat.";
+  document.getElementById("status").innerText = ok ? "✅ Tack! Ditt svar är inskickat." : "⚠️ E-post kunde inte skickas.";
   document.getElementById("summary-content").innerText=summary;
   document.getElementById("overlay").style.display="block";
   document.getElementById("summary-box").style.display="block";
