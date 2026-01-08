@@ -1,273 +1,149 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Smultronet 2026 – Föräldraenkät</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smultronet – Föräldraenkät</title>
 
-  <style>
-    :root {
-      --blue-1: #005AA5; --blue-2: #0072C6; --blue-3: #0094DA;
-      --gray-1: #F5F5F5; --gray-2: #E0E0E0; --orange: #FFA726;
-      --text: #333333;
-    }
-    *,*::before,*::after {box-sizing:border-box;margin:0;padding:0;}
-    body {font-family:"Source Sans Pro",Arial,sans-serif;background:var(--gray-1);color:var(--text);line-height:1.5;}
-    header {background:var(--blue-1);color:#fff;padding:1rem;display:flex;align-items:center;gap:0.75rem;}
-    header img {height:40px;}
-    header h1 {font-size:1.25rem;margin:0;}
-    .info-box {background:#fff;border-left:4px solid var(--orange);margin:1rem;padding:1rem;border-radius:4px;font-size:0.9rem;}
-    .info-box h2 {color:var(--blue-1);font-size:1rem;margin-bottom:0.5rem;}
-    form {background:#fff;margin:1rem;padding:1rem;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
-    form label {display:block;margin-top:0.75rem;font-size:0.9rem;}
-    form input, form select, form textarea {width:100%;padding:0.6rem;margin-top:0.25rem;border:1px solid #ccc;border-radius:4px;font-size:0.9rem;}
-    button[type="submit"] {width:100%;background:var(--blue-2);color:#fff;padding:0.75rem;font-size:1rem;border:none;border-radius:4px;}
-    button[type="submit"]:hover {background:var(--blue-3);}
-    #status {text-align:center;margin:1rem;font-weight:600;}
-    #overlay {display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);}
-    #summary-box {display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:1rem;border-radius:4px;width:90%;max-width:320px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
-    #summary-box h2 {margin-bottom:0.5rem;color:var(--blue-2);font-size:1rem;}
-    #summary-box button#close-summary {position:absolute;top:0.5rem;right:0.5rem;background:transparent;border:none;font-size:1.2rem;cursor:pointer;}
-    #summary-box pre {font-size:0.85rem;white-space:pre-wrap;}
-  </style>
+<!-- Firebase + EmailJS -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>window.onload = () => emailjs.init("64vIY_pmg15yG6lYv");</script>
+
+<style>
+:root {
+  --blue-1:#005AA5;--blue-2:#0072C6;--blue-3:#0094DA;
+  --gray-1:#F5F5F5;--gray-2:#E0E0E0;--orange:#FFA726;
+  --text:#333333;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Source Sans Pro",Arial,sans-serif;background:var(--gray-1);color:var(--text);line-height:1.5;}
+header{background:var(--blue-1);color:#fff;padding:1rem;display:flex;align-items:center;gap:0.75rem;}
+header img{height:40px;}
+header h1{font-size:1.25rem;margin:0;}
+.info-box{background:#fff;border-left:4px solid var(--orange);margin:1rem;padding:1rem;border-radius:4px;font-size:0.9rem;}
+.info-box h2{color:var(--blue-1);font-size:1rem;margin-bottom:0.5rem;}
+form{background:#fff;margin:1rem;padding:1rem;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+form label{display:block;margin-top:0.75rem;font-size:0.9rem;}
+form input, form select, form textarea{width:100%;padding:0.6rem;margin-top:0.25rem;border:1px solid #ccc;border-radius:4px;font-size:0.9rem;}
+button[type="submit"]{width:100%;background:var(--blue-2);color:#fff;padding:0.75rem;font-size:1rem;border:none;border-radius:4px;}
+button[type="submit"]:hover{background:var(--blue-3);}
+#status{text-align:center;margin:1rem;font-weight:600;}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);}
+#summary-box{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:1rem;border-radius:4px;width:90%;max-width:320px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+#summary-box h2{margin-bottom:0.5rem;color:var(--blue-2);font-size:1rem;}
+#summary-box button#close-summary{position:absolute;top:0.5rem;right:0.5rem;background:transparent;border:none;font-size:1.2rem;cursor:pointer;}
+#summary-box pre{font-size:0.85rem;white-space:pre-wrap;}
+</style>
 </head>
 <body>
-  <header>
-    <img src="stockholm-logo.png" alt="Stockholms stad logotyp">
-    <h1>Smultronet – Föräldraenkät</h1>
-  </header>
+<header>
+<img src="stockholm-logo.png" alt="Stockholms stad logotyp">
+<h1>Smultronet – Föräldraenkät</h1>
+</header>
 
-  <div class="info-box">
-    <h2 id="welcomeTitle">Hej!</h2>
-    <p id="welcomeText">Den här enkäten hjälper oss att förbättra Smultronet. Det tar ca 3–5 minuter att svara.</p>
-  </div>
+<div class="info-box">
+<h2 id="welcomeTitle">Hej!</h2>
+<p id="welcomeText">Den här enkäten hjälper oss att förbättra Smultronet. Det tar ca 3–5 minuter att svara.</p>
+</div>
 
-  <form id="surveyForm">
-    <label id="labelParent">Förälderns namn
-      <input type="text" name="parent" required>
-    </label>
+<form id="surveyForm">
+<label id="labelParent">Förälderns namn<input type="text" name="parent" required></label>
+<label id="labelChild">Barnets namn<input type="text" name="child" required></label>
+<label id="labelLang">Välj språk<select name="lang" id="lang">
+<option value="sv">Svenska</option>
+<option value="en">English</option>
+<option value="ar">العربية</option>
+<option value="so">Soomaali</option>
+<option value="am">አማርኛ</option>
+</select></label>
 
-    <label id="labelChild">Barnets namn
-      <input type="text" name="child" required>
-    </label>
+<label id="labelQ1">Hur nöjd är du totalt?<select name="q1" id="q1"></select></label>
+<label id="labelQ2">Känner du att ditt barn är tryggt?<select name="q2" id="q2"></select></label>
+<label id="labelQ3">Hur upplever du personalens bemötande?<select name="q3" id="q3"></select></label>
+<label id="labelQ4">Fungerar aktiviteterna bra?<select name="q4" id="q4"></select></label>
+<label id="labelQ5">Får du tillräcklig information?<select name="q5" id="q5"></select></label>
 
-    <label id="labelLang">Välj språk
-      <select name="lang" id="lang">
-        <option value="sv">Svenska</option>
-        <option value="en">English</option>
-        <option value="ar">العربية</option>
-        <option value="so">Soomaali</option>
-        <option value="am">አማርኛ</option>
-      </select>
-    </label>
+<label id="labelQ6">Vad fungerar bra?<textarea name="q6" rows="3"></textarea></label>
+<label id="labelQ7">Vad kan bli bättre?<textarea name="q7" rows="3"></textarea></label>
 
-    <label id="labelQ1">Hur nöjd är du totalt?
-      <select name="q1" id="q1"></select>
-    </label>
+<button type="submit">Skicka</button>
+</form>
 
-    <label id="labelQ2">Känner du att ditt barn är tryggt?
-      <select name="q2" id="q2"></select>
-    </label>
+<p id="status"></p>
 
-    <label id="labelQ3">Hur upplever du personalens bemötande?
-      <select name="q3" id="q3"></select>
-    </label>
+<div id="overlay"></div>
+<div id="summary-box">
+<button id="close-summary">×</button>
+<h2>Din sammanfattning</h2>
+<pre id="summary-content"></pre>
+</div>
 
-    <label id="labelQ4">Fungerar aktiviteterna bra?
-      <select name="q4" id="q4"></select>
-    </label>
+<script>
+const texts = {
+  sv:{welcomeTitle:"Hej!",welcomeText:"Den här enkäten hjälper oss att förbättra Smultronet. Det tar ca 3–5 minuter att svara.",
+      q1Options:["Mycket nöjd","Nöjd","Varken eller","Missnöjd","Mycket missnöjd"],
+      q2Options:["Ja, alltid","Oftast","Ibland","Nej"],
+      q3Options:["Mycket bra","Bra","Okej","Mindre bra"],
+      q4Options:["Ja","Delvis","Nej"],
+      q5Options:["Ja","Delvis","Nej"]},
+  en:{welcomeTitle:"Hello!",welcomeText:"This survey helps us improve Smultronet. Takes ~3–5 minutes.",
+      q1Options:["Very satisfied","Satisfied","Neither","Dissatisfied","Very dissatisfied"],
+      q2Options:["Yes, always","Mostly","Sometimes","No"],
+      q3Options:["Very good","Good","Okay","Less good"],
+      q4Options:["Yes","Partly","No"],
+      q5Options:["Yes","Partly","No"]},
+  ar:{welcomeTitle:"مرحبا!",welcomeText:"هذه الاستبيان يساعدنا على تحسين Smultronet. يستغرق حوالي 3–5 دقائق.",
+      q1Options:["راض جدا","راض","محايد","غير راض","غير راض تماما"],
+      q2Options:["نعم دائما","غالبا","أحيانا","لا"],
+      q3Options:["جيد جدا","جيد","مقبول","أقل من جيد"],
+      q4Options:["نعم","جزئيا","لا"],
+      q5Options:["نعم","جزئيا","لا"]},
+  so:{welcomeTitle:"Salaam!",welcomeText:"Sahankan wuxuu naga caawinayaa hagaajinta Smultronet. Waxay qaadataa ~3–5 daqiiqo.",
+      q1Options:["Aad u qanacsan","Qanacsan","Dhexdhexaad","Aan qanacsanayn","Aad u aan qanacsanayn"],
+      q2Options:["Haa mar walba","Badiyaa","Mararka qaar","Maya"],
+      q3Options:["Aad u wanaagsan","Wanaagsan","Caadi","Ka liita"],
+      q4Options:["Haa","Qayb ahaan","Maya"],
+      q5Options:["Haa","Qayb ahaan","Maya"]},
+  am:{welcomeTitle:"ሰላም!",welcomeText:"ይህ ምርመራ እኛን ለSmultronet ማሻሻል ይረዳል። አንድ 3–5 ደቂቃ ይወስዳል።",
+      q1Options:["በጣም ደስ ይበለኛል","ደስ ይበለኛል","አልፎ አልፎ","ደስ አይበለኝም","አጥንተኛ ደስ አይበለኝም"],
+      q2Options:["አዎ ሁልጊዜ","ብዙውን ጊዜ","አንዳንድ ጊዜ","አይደለም"],
+      q3Options:["በጣም ጥሩ","ጥሩ","መካከለኛ","ከፍተኛ አይደለም"],
+      q4Options:["አዎ","በከፊል","አይደለም"],
+      q5Options:["አዎ","በከፊል","አይደለም"]}
+};
 
-    <label id="labelQ5">Får du tillräcklig information?
-      <select name="q5" id="q5"></select>
-    </label>
+function updateLanguage(lang){
+  const t=texts[lang]||texts.sv;
+  document.getElementById("welcomeTitle").innerText=t.welcomeTitle;
+  document.getElementById("welcomeText").innerText=t.welcomeText;
+  ["q1","q2","q3","q4","q5"].forEach(id=>{
+    const sel=document.getElementById(id); sel.innerHTML=""; t[id+"Options"].forEach(o=>{const e=document.createElement("option");e.value=o;e.text=o; sel.add(e);});
+  });
+}
+document.getElementById("lang").addEventListener("change",e=>updateLanguage(e.target.value));
+updateLanguage("sv");
 
-    <label id="labelQ6">Vad fungerar bra?
-      <textarea name="q6" rows="3"></textarea>
-    </label>
+document.getElementById("surveyForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const data=Object.fromEntries(new FormData(e.target).entries());
 
-    <label id="labelQ7">Vad kan bli bättre?
-      <textarea name="q7" rows="3"></textarea>
-    </label>
+  // Firestore
+  await firebase.firestore().collection("enkater").add({...data,timestamp:firebase.firestore.Timestamp.now()});
 
-    <button type="submit">Skicka</button>
-  </form>
+  // EmailJS - svenska i mejlet
+  const summary=`Förälderns namn: ${data.parent}\nBarnets namn: ${data.child}\nHur nöjd totalt: ${data.q1}\nTrygghet: ${data.q2}\nPersonal: ${data.q3}\nAktiviteter: ${data.q4}\nInformation: ${data.q5}\nVad fungerar bra: ${data.q6}\nVad kan bli bättre: ${data.q7}`;
+  await skickaBekräftelse(data.parent,data.parent, data.child, summary,data.q6+"\n"+data.q7);
 
-  <p id="status"></p>
-
-  <div id="overlay"></div>
-  <div id="summary-box">
-    <button id="close-summary">×</button>
-    <h2>Din sammanfattning</h2>
-    <pre id="summary-content"></pre>
-  </div>
-
-  <script>
-    const texts = {
-      sv: {
-        welcomeTitle: "Hej!",
-        welcomeText: "Den här enkäten hjälper oss att förbättra Smultronet. Det tar ca 3–5 minuter att svara.",
-        labelParent: "Förälderns namn",
-        labelChild: "Barnets namn",
-        labelLang: "Välj språk",
-        labelQ1: "Hur nöjd är du totalt?",
-        q1Options: ["Mycket nöjd","Nöjd","Varken eller","Missnöjd","Mycket missnöjd"],
-        labelQ2: "Känner du att ditt barn är tryggt?",
-        q2Options: ["Ja, alltid","Oftast","Ibland","Nej"],
-        labelQ3: "Hur upplever du personalens bemötande?",
-        q3Options: ["Mycket bra","Bra","Okej","Mindre bra"],
-        labelQ4: "Fungerar aktiviteterna bra?",
-        q4Options: ["Ja","Delvis","Nej"],
-        labelQ5: "Får du tillräcklig information?",
-        q5Options: ["Ja","Delvis","Nej"],
-        labelQ6: "Vad fungerar bra?",
-        labelQ7: "Vad kan bli bättre?"
-      },
-      en: {
-        welcomeTitle: "Hello!",
-        welcomeText: "This survey helps us improve Smultronet. It takes about 3–5 minutes to complete.",
-        labelParent: "Parent's name",
-        labelChild: "Child's name",
-        labelLang: "Choose language",
-        labelQ1: "Overall, how satisfied are you?",
-        q1Options: ["Very satisfied","Satisfied","Neither","Dissatisfied","Very dissatisfied"],
-        labelQ2: "Do you feel your child is safe?",
-        q2Options: ["Yes, always","Mostly","Sometimes","No"],
-        labelQ3: "How do you perceive staff's behavior?",
-        q3Options: ["Very good","Good","Okay","Less good"],
-        labelQ4: "Do the activities work well?",
-        q4Options: ["Yes","Partly","No"],
-        labelQ5: "Do you receive enough information?",
-        q5Options: ["Yes","Partly","No"],
-        labelQ6: "What works well?",
-        labelQ7: "What could be improved?"
-      },
-      ar: {
-        welcomeTitle: "مرحبا!",
-        welcomeText: "يساعدنا هذا الاستبيان على تحسين Smultronet. يستغرق حوالي 3–5 دقائق للإكمال.",
-        labelParent: "اسم ولي الأمر",
-        labelChild: "اسم الطفل",
-        labelLang: "اختر اللغة",
-        labelQ1: "ما مدى رضاك بشكل عام؟",
-        q1Options: ["راضٍ جدًا","راضٍ","محايد","غير راضٍ","غير راضٍ جدًا"],
-        labelQ2: "هل تشعر أن طفلك آمن؟",
-        q2Options: ["نعم، دائمًا","غالبًا","أحيانًا","لا"],
-        labelQ3: "كيف تقيم تعامل الموظفين؟",
-        q3Options: ["جيد جدًا","جيد","مقبول","أقل من جيد"],
-        labelQ4: "هل الأنشطة تعمل بشكل جيد؟",
-        q4Options: ["نعم","جزئيًا","لا"],
-        labelQ5: "هل تحصل على معلومات كافية؟",
-        q5Options: ["نعم","جزئيًا","لا"],
-        labelQ6: "ما الذي يعمل بشكل جيد؟",
-        labelQ7: "ما الذي يمكن تحسينه؟"
-      },
-      so: {
-        welcomeTitle: "Salaan!",
-        welcomeText: "Sahankan wuxuu naga caawinayaa inaan horumarino Smultronet. Waxay qaadataa 3–5 daqiiqo.",
-        labelParent: "Magaca waalidka",
-        labelChild: "Magaca ilmaha",
-        labelLang: "Dooro luuqada",
-        labelQ1: "Guud ahaan, ma ku qanacsan tahay?",
-        q1Options: ["Aad u qanacsan","Qanacsan","Dhex dhexaad","Aan qanacsanayn","Aad u aan qanacsanayn"],
-        labelQ2: "Ma dareemeysaa in ilmahaagu ammaan yahay?",
-        q2Options: ["Haa, mar walba","Inta badan","Mararka qaarkood","Maya"],
-        labelQ3: "Sidee ayaad u aragtaa habdhaqanka shaqaalaha?",
-        q3Options: ["Aad u wanaagsan","Wanaagsan","Caadi","Ka yar wanaagsan"],
-        labelQ4: "Ma shaqeeyaan hawlaha si fiican?",
-        q4Options: ["Haa","Qaar ka mid ah","Maya"],
-        labelQ5: "Ma helaysaa macluumaad ku filan?",
-        q5Options: ["Haa","Qaar ka mid ah","Maya"],
-        labelQ6: "Maxaa si fiican u shaqeeya?",
-        labelQ7: "Maxaa la hagaajin karaa?"
-      },
-      am: {
-        welcomeTitle: "ሰላም!",
-        welcomeText: "ይህ እትም እኛን ለSmultronet ማሻሻል ይረዳል። ከ3–5 ደቂቃ ይወስዳል።",
-        labelParent: "የወላጅ ስም",
-        labelChild: "የልጅ ስም",
-        labelLang: "ቋንቋ ይምረጡ",
-        labelQ1: "በአጠቃላይ ምን ያህል ደስ ይለዎታል?",
-        q1Options: ["በጣም ደስ ይለኛል","ደስ ይለኛል","መካከለኛ","አልደስ ይለኝም","በጣም አልደስ ይለኝም"],
-        labelQ2: "ልጅዎ ደህና እንደሆነ ትሰማላችሁ?",
-        q2Options: ["አዎ","ብዙ ጊዜ","አንዳንድ ጊዜ","አይደለም"],
-        labelQ3: "የሠራተኞች አመለካከት እንዴት ነው?",
-        q3Options: ["በጣም ጥሩ","ጥሩ","መካከለኛ","አነስተኛ ጥሩ"],
-        labelQ4: "እንቅስቃሴዎቹ ጥሩ ናቸው?",
-        q4Options: ["አዎ","ከፍ ተደርጓል","አይደለም"],
-        labelQ5: "በቂ መረጃ ያገኛሉ?",
-        q5Options: ["አዎ","ከፍ ተደርጓል","አይደለም"],
-        labelQ6: "ምን ጥሩ ነው?",
-        labelQ7: "ምን ማሻሻል ይቻላል?"
-      }
-    };
-
-    function updateLanguage(lang){
-      const t = texts[lang] || texts.sv;
-      document.getElementById("welcomeTitle").innerText = t.welcomeTitle;
-      document.getElementById("welcomeText").innerText = t.welcomeText;
-      document.getElementById("labelParent").childNodes[0].nodeValue = t.labelParent;
-      document.getElementById("labelChild").childNodes[0].nodeValue = t.labelChild;
-      document.getElementById("labelLang").childNodes[0].nodeValue = t.labelLang;
-      document.getElementById("labelQ1").childNodes[0].nodeValue = t.labelQ1;
-      document.getElementById("labelQ2").childNodes[0].nodeValue = t.labelQ2;
-      document.getElementById("labelQ3").childNodes[0].nodeValue = t.labelQ3;
-      document.getElementById("labelQ4").childNodes[0].nodeValue = t.labelQ4;
-      document.getElementById("labelQ5").childNodes[0].nodeValue = t.labelQ5;
-      document.getElementById("labelQ6").childNodes[0].nodeValue = t.labelQ6;
-      document.getElementById("labelQ7").childNodes[0].nodeValue = t.labelQ7;
-
-      function updateSelect(id, options){
-        const sel = document.getElementById(id);
-        sel.innerHTML = "";
-        options.forEach(opt=>{
-          const o = document.createElement("option");
-          o.value = opt; o.text = opt;
-          sel.add(o);
-        });
-      }
-
-      updateSelect("q1", t.q1Options);
-      updateSelect("q2", t.q2Options);
-      updateSelect("q3", t.q3Options);
-      updateSelect("q4", t.q4Options);
-      updateSelect("q5", t.q5Options);
-    }
-
-    document.getElementById("lang").addEventListener("change", e=>{
-      updateLanguage(e.target.value);
-    });
-
-    // Init språk
-    updateLanguage("sv");
-
-    // Skicka formulär
-    const form = document.getElementById("surveyForm");
-    form.addEventListener("submit", async e=>{
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-
-      try{
-        const resp = await fetch("/api/send-form", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify(data)
-        });
-        if(!resp.ok) throw new Error("Något gick fel");
-
-        document.getElementById("status").innerText="✅ Tack! Ditt svar är inskickat.";
-        let summary = Object.entries(data).map(([k,v])=>`${k}: ${v}`).join("\n");
-        document.getElementById("summary-content").innerText = summary;
-        document.getElementById("overlay").style.display="block";
-        document.getElementById("summary-box").style.display="block";
-        document.getElementById("close-summary").onclick = ()=>{
-          document.getElementById("overlay").style.display="none";
-          document.getElementById("summary-box").style.display="none";
-        };
-        form.reset();
-      }catch(err){
-        console.error(err);
-        document.getElementById("status").innerText="⚠️ Ett fel uppstod, försök igen senare.";
-      }
-    });
-  </script>
+  document.getElementById("status").innerText="✅ Tack! Ditt svar är inskickat.";
+  document.getElementById("summary-content").innerText=summary;
+  document.getElementById("overlay").style.display="block";
+  document.getElementById("summary-box").style.display="block";
+  document.getElementById("close-summary").onclick=()=>{document.getElementById("overlay").style.display="none";document.getElementById("summary-box").style.display="none";};
+  e.target.reset();
+});
+</script>
 </body>
 </html>
