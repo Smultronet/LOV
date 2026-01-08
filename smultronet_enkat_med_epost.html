@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Enkät – Korttidstillsynen Smultronet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: Arial, sans-serif; background:#f2f2f2; padding:20px; }
+.container { max-width:800px; background:#fff; padding:20px; border-radius:10px; }
+h1 { font-size:1.5em; }
+label { display:block; margin-top:18px; font-weight:bold; }
+input, select, textarea { width:100%; padding:10px; margin-top:6px; font-size:1em; }
+button { margin-top:25px; padding:12px 20px; font-size:1em; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1 id="title">Enkät – Korttidstillsynen Smultronet</h1>
+<p id="intro"></p>
+
+<form action="https://formsubmit.co/karim.nawar@stockholm.se" method="POST">
+
+<input type="hidden" name="_subject" value="Ny enkät – Smultronet">
+<input type="hidden" name="_captcha" value="false">
+<input type="hidden" name="_template" value="table">
+
+<label id="parentLabel">Förälderns namn</label>
+<input type="text" name="Förälder" required>
+
+<label id="childLabel">Barnets namn</label>
+<input type="text" name="Barn" required>
+
+<label id="langLabel">Välj språk</label>
+<select id="language" onchange="setLanguage()">
+<option value="sv">Svenska</option>
+<option value="en">English</option>
+<option value="ar">العربية</option>
+<option value="so">Soomaali</option>
+<option value="am">አማርኛ</option>
+</select>
+
+<label id="q1"></label>
+<select id="q1o" name="Helhetsnöjdhet"></select>
+
+<label id="q2"></label>
+<select id="q2o" name="Trygghet"></select>
+
+<label id="q3"></label>
+<select id="q3o" name="Bemötande"></select>
+
+<label id="q4"></label>
+<select id="q4o" name="Aktiviteter"></select>
+
+<label id="q5"></label>
+<select id="q5o" name="Information"></select>
+
+<label id="q6"></label>
+<textarea rows="4" name="Det som fungerar bra"></textarea>
+
+<label id="q7"></label>
+<textarea rows="4" name="Förbättringsförslag"></textarea>
+
+<button type="submit" id="submitBtn">Skicka</button>
+</form>
+</div>
+
+<script>
+const data = {
+sv: {
+intro: "Enkäten är anonym och används för att förbättra verksamheten. Det tar cirka 3–5 minuter.",
+parent: "Förälderns namn",
+child: "Barnets namn",
+lang: "Välj språk",
+q1: "Hur nöjd är du totalt med Smultronet?",
+q1o: ["Mycket nöjd","Nöjd","Varken eller","Missnöjd","Mycket missnöjd"],
+q2: "Känner du att ditt barn är tryggt?",
+q2o: ["Ja, alltid","Oftast","Ibland","Nej"],
+q3: "Hur upplever du personalens bemötande?",
+q3o: ["Mycket bra","Bra","Okej","Mindre bra"],
+q4: "Fungerar aktiviteterna bra?",
+q4o: ["Ja","Delvis","Nej"],
+q5: "Får du tillräcklig information?",
+q5o: ["Ja","Delvis","Nej"],
+q6: "Vad fungerar bra?",
+q7: "Vad kan bli bättre?",
+submit: "Skicka"
+},
+en: {
+intro: "This survey is anonymous and helps us improve the service.",
+parent: "Parent's name",
+child: "Child's name",
+lang: "Choose language",
+q1: "How satisfied are you overall?",
+q1o: ["Very satisfied","Satisfied","Neither","Dissatisfied","Very dissatisfied"],
+q2: "Do you feel your child is safe?",
+q2o: ["Yes, always","Often","Sometimes","No"],
+q3: "How is the staff's attitude?",
+q3o: ["Very good","Good","Okay","Not so good"],
+q4: "Do the activities work well?",
+q4o: ["Yes","Partly","No"],
+q5: "Do you receive enough information?",
+q5o: ["Yes","Partly","No"],
+q6: "What works well?",
+q7: "What could be improved?",
+submit: "Submit"
+}
+};
+
+function fillOptions(id, arr){
+  const s = document.getElementById(id);
+  s.innerHTML="";
+  arr.forEach(v=>{ let o=document.createElement("option"); o.text=v; s.add(o); });
+}
+
+function setLanguage(){
+  const l = document.getElementById("language").value;
+  const t = data[l] || data.sv;
+  document.getElementById("intro").innerText=t.intro;
+  document.getElementById("parentLabel").innerText=t.parent;
+  document.getElementById("childLabel").innerText=t.child;
+  document.getElementById("langLabel").innerText=t.lang;
+  document.getElementById("q1").innerText=t.q1;
+  document.getElementById("q2").innerText=t.q2;
+  document.getElementById("q3").innerText=t.q3;
+  document.getElementById("q4").innerText=t.q4;
+  document.getElementById("q5").innerText=t.q5;
+  document.getElementById("q6").innerText=t.q6;
+  document.getElementById("q7").innerText=t.q7;
+  document.getElementById("submitBtn").innerText=t.submit;
+  fillOptions("q1o",t.q1o);
+  fillOptions("q2o",t.q2o);
+  fillOptions("q3o",t.q3o);
+  fillOptions("q4o",t.q4o);
+  fillOptions("q5o",t.q5o);
+}
+setLanguage();
+</script>
+</body>
+</html>
