@@ -5,16 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Smultronet – Föräldraenkät</title>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 
-<!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script>
-window.onload = () => emailjs.init("64vIY_pmg15yG6lYv");
-</script>
+<script>window.onload = () => emailjs.init("64vIY_pmg15yG6lYv");</script>
 
 <style>
 :root {
@@ -27,12 +23,14 @@ body{font-family:"Source Sans Pro",Arial,sans-serif;background:var(--gray-1);col
 header{background:var(--blue-1);color:#fff;padding:1rem;display:flex;align-items:center;gap:.75rem;}
 header img{height:40px;}
 header h1{font-size:1.25rem;}
-.info-box,form{background:#fff;margin:1rem;padding:1rem;border-radius:4px;}
+.info-box,form,#thankYou{background:#fff;margin:1rem;padding:1rem;border-radius:4px;}
 form label{display:block;margin-top:.75rem;font-size:.9rem;}
 form input,form select,form textarea{width:100%;padding:.6rem;margin-top:.25rem;border:1px solid #ccc;border-radius:4px;}
 button{width:100%;background:var(--blue-2);color:#fff;padding:.75rem;font-size:1rem;border:none;border-radius:4px;}
 button:hover{background:var(--blue-3);}
 #status{text-align:center;margin:1rem;font-weight:600;}
+#thankYou{display:none;text-align:center;}
+#thankYou h2{color:var(--blue-1);margin-bottom:.5rem;}
 </style>
 </head>
 
@@ -48,14 +46,9 @@ button:hover{background:var(--blue-3);}
 </div>
 
 <form id="surveyForm">
-<label id="labelParent"></label>
-<input name="parent" required>
-
-<label id="labelChild"></label>
-<input name="child" required>
-
-<label id="labelEmail"></label>
-<input name="email" type="email" required>
+<label id="labelParent"></label><input name="parent" required>
+<label id="labelChild"></label><input name="child" required>
+<label id="labelEmail"></label><input name="email" type="email" required>
 
 <label>
 <select id="lang">
@@ -78,6 +71,11 @@ button:hover{background:var(--blue-3);}
 
 <button type="submit" id="submitBtn"></button>
 </form>
+
+<div id="thankYou">
+<h2>🙏 Tack för ditt svar!</h2>
+<p>Din enkät är nu inskickad.<br>Vi uppskattar att du tog dig tid.</p>
+</div>
 
 <p id="status"></p>
 
@@ -106,99 +104,11 @@ q2:["Ja, alltid","Oftast","Ibland","Nej"],
 q3:["Mycket bra","Bra","Okej","Mindre bra"],
 q4:["Ja","Delvis","Nej"],
 q5:["Ja","Delvis","Nej"]
-}},
-en:{
-pageTitle:"Smultronet – Parent Survey",
-welcomeTitle:"Hello!",
-welcomeText:"This survey helps us improve Smultronet.",
-labelParent:"Parent's name",
-labelChild:"Child's name",
-labelEmail:"Parent email",
-q1:"Overall satisfaction?",
-q2:"Does your child feel safe?",
-q3:"How is staff interaction?",
-q4:"Do activities work well?",
-q5:"Do you get enough information?",
-q6:"What works well?",
-q7:"What can improve?",
-submit:"Submit",
-opts:{
-q1:["Very satisfied","Satisfied","Neutral","Dissatisfied","Very dissatisfied"],
-q2:["Always","Often","Sometimes","No"],
-q3:["Very good","Good","Okay","Poor"],
-q4:["Yes","Partly","No"],
-q5:["Yes","Partly","No"]
-}},
-ar:{
-pageTitle:"Smultronet – استبيان أولياء الأمور",
-welcomeTitle:"مرحباً",
-welcomeText:"يساعدنا هذا الاستبيان على تحسين Smultronet.",
-labelParent:"اسم ولي الأمر",
-labelChild:"اسم الطفل",
-labelEmail:"البريد الإلكتروني",
-q1:"ما مدى رضاك العام؟",
-q2:"هل يشعر طفلك بالأمان؟",
-q3:"كيف تعامل الموظفين؟",
-q4:"هل الأنشطة جيدة؟",
-q5:"هل تحصل على معلومات كافية؟",
-q6:"ما الذي يعمل بشكل جيد؟",
-q7:"ما الذي يمكن تحسينه؟",
-submit:"إرسال",
-opts:{
-q1:["راض جداً","راض","محايد","غير راض","غير راض جداً"],
-q2:["دائماً","غالباً","أحياناً","لا"],
-q3:["ممتاز","جيد","مقبول","سيئ"],
-q4:["نعم","جزئياً","لا"],
-q5:["نعم","جزئياً","لا"]
-}},
-so:{
-pageTitle:"Smultronet – Sahanka Waalidiinta",
-welcomeTitle:"Salaan",
-welcomeText:"Sahankan wuxuu naga caawinayaa horumarinta Smultronet.",
-labelParent:"Magaca waalidka",
-labelChild:"Magaca ilmaha",
-labelEmail:"Iimaylka waalidka",
-q1:"Sidee ayaad u qanacsan tahay guud ahaan?",
-q2:"Ilmahaagu ma dareemaa ammaan?",
-q3:"Sidee tahay la macaamilka shaqaalaha?",
-q4:"Hawlaha ma shaqeeyaan si fiican?",
-q5:"Ma heshaa xog ku filan?",
-q6:"Maxaa si fiican u shaqeeya?",
-q7:"Maxaa la hagaajin karaa?",
-submit:"Dir",
-opts:{
-q1:["Aad u qanacsan","Qanacsan","Dhexdhexaad","Aan qanacsanayn","Aad u aan qanacsanayn"],
-q2:["Mar walba","Badanaa","Mararka qaar","Maya"],
-q3:["Aad u fiican","Fiican","Caadi","Liita"],
-q4:["Haa","Qayb ahaan","Maya"],
-q5:["Haa","Qayb ahaan","Maya"]
-}},
-am:{
-pageTitle:"Smultronet – የወላጅ ጥናት",
-welcomeTitle:"ሰላም",
-welcomeText:"ይህ ጥናት Smultronetን ለማሻሻል ይረዳል።",
-labelParent:"የወላጅ ስም",
-labelChild:"የልጅ ስም",
-labelEmail:"የኢሜይል አድራሻ",
-q1:"አጠቃላይ እርካታ?",
-q2:"ልጅዎ ደህንነት ያለው ይሰማዋል?",
-q3:"የሰራተኞች ባህሪ?",
-q4:"እንቅስቃሴዎች ይሰሩ?",
-q5:"በቂ መረጃ ታገኛለህ?",
-q6:"የሚሰራው ምንድን ነው?",
-q7:"ምን ሊሻሻል ይችላል?",
-submit:"ላክ",
-opts:{
-q1:["በጣም ጥሩ","ጥሩ","መካከለኛ","መጥፎ","በጣም መጥፎ"],
-q2:["ሁልጊዜ","ብዙውን ጊዜ","አንዳንድ ጊዜ","አይ"],
-q3:["በጣም ጥሩ","ጥሩ","መካከለኛ","መጥፎ"],
-q4:["አዎ","በከፊል","አይ"],
-q5:["አዎ","በከፊል","አይ"]
 }}
 };
 
 function setLang(l){
-const t=texts[l];
+const t=texts[l]||texts.sv;
 pageTitle.innerText=t.pageTitle;
 welcomeTitle.innerText=t.welcomeTitle;
 welcomeText.innerText=t.welcomeText;
@@ -218,13 +128,13 @@ const s=document.getElementById(id);s.innerHTML="";
 t.opts[id].forEach(o=>{const op=document.createElement("option");op.text=o;s.add(op);});
 });
 }
-
 lang.onchange=e=>setLang(e.target.value);
 setLang("sv");
 
 surveyForm.onsubmit=async e=>{
 e.preventDefault();
 const d=Object.fromEntries(new FormData(surveyForm));
+
 await firebase.firestore().collection("enkater").add({...d,timestamp:firebase.firestore.Timestamp.now()});
 
 const summary=`Förälder: ${d.parent}
@@ -237,10 +147,11 @@ Information: ${d.q5}
 Bra: ${d.q6}
 Bättre: ${d.q7}`;
 
-const ok = await skickaBekräftelse(d.parent,d.email,d.child,summary,d.q6+"\n"+d.q7);
-status.innerText = ok ? "✅ Tack! Ditt svar är inskickat." : "⚠️ E-post kunde inte skickas.";
-surveyForm.reset();
-setLang("sv");
+await skickaBekräftelse(d.parent,d.email,d.child,summary,d.q6+"\n"+d.q7);
+
+surveyForm.style.display="none";
+document.querySelector(".info-box").style.display="none";
+document.getElementById("thankYou").style.display="block";
 };
 </script>
 </body>
